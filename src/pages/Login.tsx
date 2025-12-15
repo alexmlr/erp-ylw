@@ -37,21 +37,16 @@ export const Login: React.FC = () => {
         <div className={styles.container}>
             <div className={styles.card}>
                 <div className={styles.header}>
-                    <div className={styles.logo}>
-                        {logoUrl && (
+                    {logoUrl ? (
+                        <div className={styles.brandLogo}>
                             <img
                                 src={logoUrl}
                                 alt="ERP Yellow"
-                                style={{
-                                    width: '100%',
-                                    height: '100%',
-                                    objectFit: 'contain',
-                                    opacity: 1,
-                                    background: 'none'
-                                }}
                             />
-                        )}
-                    </div>
+                        </div>
+                    ) : (
+                        <div className={styles.logo}></div>
+                    )}
                     <h1 className={styles.title}>Welcome Back</h1>
                     <p className={styles.subtitle}>Sign in to ERP Yellow System</p>
                 </div>

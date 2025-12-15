@@ -41,6 +41,21 @@
     margin: 0 auto 1.5rem;
 }
 
+.brandLogo {
+    width: 105px;
+    height: auto;
+    margin: 0 auto 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.brandLogo img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
 .title {
     font-size: 1.5rem;
     font-weight: 700;
