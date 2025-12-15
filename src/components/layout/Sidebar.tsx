@@ -25,6 +25,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
     const hasPermission = (module: string) => {
         if (!profile) return false;
         if (profile.role === 'admin' || profile.role === 'manager') return true;
+        if (profile.role === 'administrative' && module === 'inventory') return true;
         if (profile.role === 'commercial' && module === 'inventory') return true;
         return profile.permissions?.includes(module) || false;
     };
@@ -36,27 +37,62 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
         );
     };
 
+    // Helper to check if user is in one of the allowed roles
+    const checkRole = (allowedRoles: string[]) => {
+        if (!profile?.role) return false;
+        return allowedRoles.includes(profile.role);
+    };
+
     const navItems: NavItem[] = [
         { path: '/', label: 'Dashboard', icon: LayoutDashboard, show: true },
+
+        // Requisitions (Moved to Root) - Available to everyone
+        { path: '/inventory/requisitions', label: 'Requisições', icon: FileText, show: true },
+
         {
             path: '/registrations',
             label: 'Cadastros',
             icon: Database,
             show: true,
             children: [
-                { path: '/inventory/products', label: 'Produtos', icon: Box, show: true },
-                { path: '/purchases/suppliers', label: 'Fornecedores', icon: Truck, show: true },
-                { path: '/users', label: 'Usuários', icon: Users, show: profile?.role === 'admin' || profile?.role === 'manager' },
-                { path: '/settings/units', label: 'Unidades', icon: FileSpreadsheet, show: true }, // Placeholder path for Unidades
+                // Products: Admin, Manager, Administrative
+                {
+                    path: '/inventory/products',
+                    label: 'Produtos',
+                    icon: Box,
+                    show: checkRole(['admin', 'manager', 'administrative'])
+                },
+                // Suppliers: Admin, Manager, Administrative
+                {
+                    path: '/purchases/suppliers',
+                    label: 'Fornecedores',
+                    icon: Truck,
+                    show: checkRole(['admin', 'manager', 'administrative'])
+                },
+                // Users: Admin, Manager
+                {
+                    path: '/users',
+                    label: 'Usuários',
+                    icon: Users,
+                    show: checkRole(['admin', 'manager'])
+                },
+                // Units: Admin, Manager
+                {
+                    path: '/settings/units',
+                    label: 'Unidades',
+                    icon: FileSpreadsheet,
+                    show: checkRole(['admin', 'manager'])
+                },
             ]
         },
         {
             path: '/inventory',
             label: 'Inventário',
             icon: Package,
-            show: hasPermission('inventory'),
+            // Inventory: Admin, Manager, Commercial, Administrative
+            show: checkRole(['admin', 'manager', 'commercial', 'administrative']) || hasPermission('inventory'),
             children: [
-                { path: '/inventory/requisitions', label: 'Requisições', icon: FileText, show: true },
+                // Requisitions was here, now moved to root
             ]
         },
         {
@@ -78,9 +114,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
     ];
 
     const renderNavItem = (item: NavItem) => {
-        const hasChildren = item.children && item.children.length > 0;
+        const visibleChildren = item.children?.filter(child => child.show) || [];
+        const hasChildren = visibleChildren.length > 0;
         const isExpanded = expandedMenus.includes(item.path);
-        const isActive = location.pathname === item.path || item.children?.some(child => location.pathname === child.path);
+        const isActive = location.pathname === item.path || visibleChildren.some(child => location.pathname === child.path);
 
         return (
             <div key={item.path}>
@@ -107,7 +144,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
 
                 {hasChildren && isExpanded && isOpen && (
                     <div className={styles.submenu}>
-                        {item.children?.map(child => (
+                        {item.children?.filter(child => child.show).map(child => (
                             <NavLink
                                 key={child.path}
                                 to={child.path}
