@@ -1,33 +1,31 @@
 import React from 'react';
-import styles from './Pages.module.css';
+import { useAuth } from '../contexts/AuthContext';
+import { CommercialDashboard } from '../components/dashboard/CommercialDashboard';
+import { AdministrativeDashboard } from '../components/dashboard/AdministrativeDashboard';
+import { ManagementDashboard } from '../components/dashboard/ManagementDashboard';
 
 const Dashboard: React.FC = () => {
-    return (
-        <div className={styles.container}>
-            <h1 className={styles.title}>Dashboard</h1>
-            <div className={styles.dashboardGrid}>
-                <div className={styles.statCard}>
-                    <h2 className={styles.statLabel}>Total Inventory</h2>
-                    <p className={styles.statValue}>1,240</p>
-                </div>
-                <div className={`${styles.statCard} ${styles.blue}`}>
-                    <h2 className={styles.statLabel}>New Orders</h2>
-                    <p className={styles.statValue}>45</p>
-                </div>
-                <div className={`${styles.statCard} ${styles.green}`}>
-                    <h2 className={styles.statLabel}>Revenue (Monthly)</h2>
-                    <p className={styles.statValue}>$24,500</p>
-                </div>
-            </div>
+    const { profile } = useAuth();
 
-            <div className={styles.card} style={{ textAlign: 'left', marginTop: '1rem' }}>
-                <h2 className={styles.title} style={{ fontSize: '1.125rem', marginBottom: '1rem' }}>Recent Activity</h2>
-                <div className="space-y-4">
-                    <p className="text-gray-500 text-sm">No recent activity.</p>
-                </div>
-            </div>
-        </div>
-    );
+    if (!profile) {
+        return <div className="p-6">Carregando...</div>;
+    }
+
+    // Role-based rendering
+    if (profile.role === 'admin' || profile.role === 'manager') {
+        return <ManagementDashboard />;
+    }
+
+    if (profile.role === 'administrative') {
+        return <AdministrativeDashboard />;
+    }
+
+    if (profile.role === 'commercial') {
+        return <CommercialDashboard />;
+    }
+
+    // Fallback for standard users (uses Commercial view as default for now, or could be a simple welcome page)
+    return <CommercialDashboard />;
 };
 
 export default Dashboard;
