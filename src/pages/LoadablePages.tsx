@@ -19,11 +19,4 @@ export const Purchases: React.FC = () => (
     </div>
 );
 
-export const Settings: React.FC = () => (
-    <div className={styles.container}>
-        <h1 className={styles.title}>Configurações</h1>
-        <div className={styles.card}>
-            Módulo em desenvolvimento...
-        </div>
-    </div>
-);
+export { SettingsPage as Settings } from './Settings/SettingsPage';

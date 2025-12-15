@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Menu, User, LogOut } from 'lucide-react';
 import styles from './Layout.module.css';
 import { useAuth } from '../../contexts/AuthContext';
+import { useBranding } from '../../contexts/BrandingContext';
 import { NavLink } from 'react-router-dom';
 
 interface HeaderProps {
@@ -10,6 +11,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
     const { profile, signOut } = useAuth();
+    const { logoUrl } = useBranding();
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -35,8 +37,18 @@ export const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                     <Menu size={24} />
                 </button>
                 <div className={styles.logo}>
-                    <div style={{ width: 24, height: 24, background: 'var(--color-primary)', borderRadius: 4 }}></div>
-                    ERP Yellow
+                    {logoUrl ? (
+                        <img
+                            src={logoUrl}
+                            alt="ERP Yellow"
+                            style={{ height: 32, objectFit: 'contain' }}
+                        />
+                    ) : (
+                        <>
+                            <div style={{ width: 24, height: 24, background: 'var(--color-primary)', borderRadius: 4 }}></div>
+                            ERP Yellow
+                        </>
+                    )}
                 </div>
             </div>
 

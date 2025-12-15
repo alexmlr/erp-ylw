@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { useBranding } from '../contexts/BrandingContext';
 import { Loader2 } from 'lucide-react';
 import styles from './Login.module.css';
 
 export const Login: React.FC = () => {
+    const { logoUrl } = useBranding();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
@@ -35,7 +37,21 @@ export const Login: React.FC = () => {
         <div className={styles.container}>
             <div className={styles.card}>
                 <div className={styles.header}>
-                    <div className={styles.logo}></div>
+                    <div className={styles.logo}>
+                        {logoUrl && (
+                            <img
+                                src={logoUrl}
+                                alt="ERP Yellow"
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'contain',
+                                    opacity: 1,
+                                    background: 'none'
+                                }}
+                            />
+                        )}
+                    </div>
                     <h1 className={styles.title}>Welcome Back</h1>
                     <p className={styles.subtitle}>Sign in to ERP Yellow System</p>
                 </div>

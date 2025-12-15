@@ -1,6 +1,7 @@
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { BrandingProvider } from './contexts/BrandingContext';
 import { MainLayout } from './components/layout/MainLayout';
 import { Login } from './pages/Login';
 import Dashboard from './pages/Dashboard';
@@ -19,34 +20,36 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Routes>
-          <Route path="/login" element={<Login />} />
+        <BrandingProvider>
+          <Routes>
+            <Route path="/login" element={<Login />} />
 
-          <Route path="/" element={
-            <ProtectedRoute>
-              <MainLayout />
-            </ProtectedRoute>
-          }>
-            <Route index element={<Dashboard />} />
+            <Route path="/" element={
+              <ProtectedRoute>
+                <MainLayout />
+              </ProtectedRoute>
+            }>
+              <Route index element={<Dashboard />} />
 
-            <Route path="inventory" element={<InventoryPage />} />
-            <Route path="inventory/movements" element={<InventoryMovementsPage />} />
-            <Route path="inventory/products" element={<ProductsPage />} />
-            <Route path="inventory/requisitions" element={<RequisitionsPage />} />
+              <Route path="inventory" element={<InventoryPage />} />
+              <Route path="inventory/movements" element={<InventoryMovementsPage />} />
+              <Route path="inventory/products" element={<ProductsPage />} />
+              <Route path="inventory/requisitions" element={<RequisitionsPage />} />
 
-            <Route path="purchases" element={<Purchases />} />
-            <Route path="purchases/products" element={<ProductsPage />} />
-            <Route path="purchases/suppliers" element={<SuppliersPage />} />
+              <Route path="purchases" element={<Purchases />} />
+              <Route path="purchases/products" element={<ProductsPage />} />
+              <Route path="purchases/suppliers" element={<SuppliersPage />} />
 
 
-            <Route path="users" element={<UserList />} />
-            <Route path="settings" element={<Settings />} />
-            <Route path="settings/units" element={<UnitsPage />} />
-            <Route path="profile" element={<ProfilePage />} />
-          </Route>
+              <Route path="users" element={<UserList />} />
+              <Route path="settings" element={<Settings />} />
+              <Route path="settings/units" element={<UnitsPage />} />
+              <Route path="profile" element={<ProfilePage />} />
+            </Route>
 
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </BrandingProvider>
       </AuthProvider>
     </BrowserRouter>
   );
