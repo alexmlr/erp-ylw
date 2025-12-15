@@ -26,7 +26,7 @@ interface Movement {
 
 export const InventoryPage: React.FC = () => {
     const [products, setProducts] = useState<Product[]>([]);
-    const [loading, setLoading] = useState(true);
+
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(25);
@@ -42,7 +42,6 @@ export const InventoryPage: React.FC = () => {
     const [recentOutbound, setRecentOutbound] = useState<Movement[]>([]);
 
     const fetchInventory = async () => {
-        setLoading(true);
         try {
             // Fetch Products with Stock
             const { data: productsData, count } = await supabase
@@ -76,8 +75,6 @@ export const InventoryPage: React.FC = () => {
 
             console.error('Error fetching inventory:', error);
             // alert('Erro ao carregar inventário: ' + (error.message || 'Erro desconhecido'));
-        } finally {
-            setLoading(false);
         }
     };
 

@@ -10,14 +10,13 @@ export const InventoryMovementsPage: React.FC = () => {
     const [movements, setMovements] = useState<any[]>([]);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [loading, setLoading] = useState(true);
+
 
     useEffect(() => {
         fetchMovements();
     }, [page, typeFilter]);
 
     const fetchMovements = async () => {
-        setLoading(true);
         try {
             let query = supabase
                 .from('inventory_movements')
@@ -36,8 +35,6 @@ export const InventoryMovementsPage: React.FC = () => {
         } catch (error: any) {
             console.error('Error fetching movements:', error);
             // alert('Erro ao carregar histórico: ' + (error.message || 'Erro desconhecido'));
-        } finally {
-            setLoading(false);
         }
     };
 
