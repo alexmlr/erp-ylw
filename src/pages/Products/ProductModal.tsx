@@ -1,0 +1,244 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { X, Loader2, Image as ImageIcon } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
+import type { Product } from './ProductCard';
+import styles from './Products.module.css';
+
+interface ProductModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSave: () => void;
+    productToEdit?: Product | null;
+}
+
+const CATEGORIES = [
+    'Alimentos e Bebidas',
+    'Ferramentas',
+    'Limpeza',
+    'Loja Yellow',
+    'Manutenção',
+    'Material de Escritório',
+    'Obra',
+    'Outros'
+].sort();
+
+const UNITS = [
+    'Caixa',
+    'Litro',
+    'Metro',
+    'Pacote',
+    'Quilograma',
+    'Unidade'
+].sort();
+
+export const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, productToEdit }) => {
+    const [name, setName] = useState('');
+    const [category, setCategory] = useState('');
+    const [unit, setUnit] = useState('');
+    const [minQuantity, setMinQuantity] = useState(0);
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        if (productToEdit) {
+            setName(productToEdit.name);
+            setCategory(productToEdit.category);
+            setUnit(productToEdit.unit);
+            setMinQuantity(productToEdit.min_quantity || 0);
+            setImagePreview(productToEdit.image_url);
+        } else {
+            resetForm();
+        }
+    }, [productToEdit, isOpen]);
+
+    const resetForm = () => {
+        setName('');
+        setCategory('');
+        setUnit('');
+        setMinQuantity(0);
+        setImageFile(null);
+        setImagePreview(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (file.size > 100 * 1024) { // 100KB
+            alert('A imagem deve ter no máximo 100KB.');
+            return;
+        }
+
+        if (!['image/jpeg', 'image/png', 'image/jpg', 'image/webp'].includes(file.type)) {
+            alert('Formato inválido. Use JPG, PNG ou WebP.');
+            return;
+        }
+
+        setImageFile(file);
+        const objectUrl = URL.createObjectURL(file);
+        setImagePreview(objectUrl);
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+
+        try {
+            let imageUrl = productToEdit?.image_url || null;
+
+            if (imageFile) {
+                const fileExt = imageFile.name.split('.').pop();
+                const fileName = `${Date.now()}-${Math.random()}.${fileExt}`;
+                const filePath = `${fileName}`;
+
+                const { error: uploadError } = await supabase.storage
+                    .from('products')
+                    .upload(filePath, imageFile);
+
+                if (uploadError) throw uploadError;
+
+                const { data: { publicUrl } } = supabase.storage
+                    .from('products')
+                    .getPublicUrl(filePath);
+
+                imageUrl = publicUrl;
+            }
+
+            const productData = {
+                name,
+                category,
+                unit,
+                min_quantity: minQuantity,
+                image_url: imageUrl
+            };
+
+            if (productToEdit) {
+                const { error } = await supabase
+                    .from('products')
+                    .update(productData)
+                    .eq('id', productToEdit.id);
+                if (error) throw error;
+            } else {
+                const { error } = await supabase
+                    .from('products')
+                    .insert([productData]);
+                if (error) throw error;
+            }
+
+            onSave();
+            onClose();
+        } catch (error) {
+            console.error('Error saving product:', error);
+            alert('Erro ao salvar produto.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (!isOpen) return null;
+
+    return (
+        <div className={styles.modalOverlay}>
+            <div className={styles.modalContent}>
+                <div className={styles.modalHeader}>
+                    <h2 className={styles.modalTitle}>
+                        {productToEdit ? 'Editar Produto' : 'Novo Produto'}
+                    </h2>
+                    <button onClick={onClose} className={styles.closeButton}>
+                        <X size={24} />
+                    </button>
+                </div>
+
+                <form onSubmit={handleSubmit} className={styles.modalForm}>
+                    <div
+                        className={styles.imageUpload}
+                        onClick={() => fileInputRef.current?.click()}
+                    >
+                        {imagePreview ? (
+                            <img src={imagePreview} alt="Preview" className={styles.previewImage} />
+                        ) : (
+                            <div className={styles.uploadPlaceholder}>
+                                <ImageIcon size={40} className="mb-2" />
+                                <span className={styles.uploadText}>Clique para adicionar foto</span>
+                                <span className={styles.uploadSubtext}>(Máx 100KB - JPG/PNG/WebP)</span>
+                            </div>
+                        )}
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            className="hidden"
+                            accept="image/jpeg,image/png,image/webp"
+                            onChange={handleImageChange}
+                        />
+                    </div>
+
+                    <div className={styles.formGroup}>
+                        <label className={styles.label}>Nome do Produto</label>
+                        <input
+                            type="text"
+                            required
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            className={styles.input}
+                            placeholder="Ex: Luva de Látex"
+                        />
+                    </div>
+
+                    <div className={styles.grid2}>
+                        <div className={styles.formGroup}>
+                            <label className={styles.label}>Categoria</label>
+                            <select
+                                required
+                                value={category}
+                                onChange={(e) => setCategory(e.target.value)}
+                                className={styles.select}
+                            >
+                                <option value="">Selecione...</option>
+                                {CATEGORIES.map(cat => (
+                                    <option key={cat} value={cat}>{cat}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label className={styles.label}>Unidade</label>
+                            <select
+                                required
+                                value={unit}
+                                onChange={(e) => setUnit(e.target.value)}
+                                className={styles.select}
+                            >
+                                <option value="">Selecione...</option>
+                                {UNITS.map(u => (
+                                    <option key={u} value={u}>{u}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label className={styles.label}>Qtd. Mínima</label>
+                            <input
+                                type="number"
+                                min="0"
+                                value={minQuantity}
+                                onChange={(e) => setMinQuantity(parseInt(e.target.value) || 0)}
+                                className={styles.input}
+                                placeholder="0"
+                            />
+                        </div>
+                    </div>
+
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className={styles.submitButton}
+                    >
+                        {loading ? <Loader2 className="animate-spin mr-2" size={20} /> : null}
+                        {productToEdit ? 'Atualizar Produto' : 'Cadastrar Produto'}
+                    </button>
+                </form>
+            </div>
+        </div>
+    );
+};

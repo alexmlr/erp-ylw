@@ -1,0 +1,140 @@
+import React, { useState, useEffect } from 'react';
+import { X, Save } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../contexts/AuthContext';
+import styles from './Inventory.module.css';
+
+interface OutboundModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSuccess: () => void;
+}
+
+export const OutboundModal: React.FC<OutboundModalProps> = ({ isOpen, onClose, onSuccess }) => {
+    const { profile } = useAuth();
+    const [products, setProducts] = useState<any[]>([]);
+    const [units, setUnits] = useState<any[]>([]);
+
+    const [selectedProduct, setSelectedProduct] = useState('');
+    const [selectedUnit, setSelectedUnit] = useState('');
+    const [quantity, setQuantity] = useState(1);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        if (isOpen) {
+            fetchData();
+        }
+    }, [isOpen]);
+
+    const fetchData = async () => {
+        const { data: pData } = await supabase.from('products').select('id, name, quantity').order('name');
+        const { data: uData } = await supabase.from('units').select('id, name').eq('active', true).order('name');
+        setProducts(pData || []);
+        setUnits(uData || []);
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        try {
+            // Check Stock
+            const prod = products.find(p => p.id === selectedProduct);
+            if (!prod || prod.quantity < quantity) {
+                alert('Estoque insuficiente!');
+                setLoading(false);
+                return;
+            }
+
+            // 1. Record Movement
+            const { error: moveError } = await supabase.from('inventory_movements').insert([{
+                product_id: selectedProduct,
+                type: 'OUT',
+                quantity,
+                unit_id: selectedUnit,
+                user_id: profile?.id
+            }]);
+            if (moveError) throw moveError;
+
+            // 2. Update Product Stock
+            const { error: updateError } = await supabase
+                .from('products')
+                .update({ quantity: prod.quantity - quantity })
+                .eq('id', selectedProduct);
+
+            if (updateError) throw updateError;
+
+            onSuccess();
+            onClose();
+            // Reset
+            setSelectedProduct('');
+            setSelectedUnit('');
+            setQuantity(1);
+        } catch (error) {
+            console.error(error);
+            alert('Erro ao registrar saída.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (!isOpen) return null;
+
+    return (
+        <div className={styles.modalOverlay}>
+            <div className={styles.modalContent}>
+                <div className={styles.modalHeader}>
+                    <h2>Retirada de Material</h2>
+                    <button onClick={onClose}><X size={24} /></button>
+                </div>
+                <form onSubmit={handleSubmit}>
+                    <div className={styles.formGroup}>
+                        <label>Produto</label>
+                        <select
+                            required
+                            className={styles.select}
+                            value={selectedProduct}
+                            onChange={e => setSelectedProduct(e.target.value)}
+                        >
+                            <option value="">Selecione...</option>
+                            {products.map(p => (
+                                <option key={p.id} value={p.id}>
+                                    {p.name} (Estoque: {p.quantity})
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className={styles.formGroup}>
+                        <label>Unidade de Destino</label>
+                        <select
+                            required
+                            className={styles.select}
+                            value={selectedUnit}
+                            onChange={e => setSelectedUnit(e.target.value)}
+                        >
+                            <option value="">Selecione...</option>
+                            {units.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+                        </select>
+                    </div>
+                    <div className={styles.formGroup}>
+                        <label>Quantidade</label>
+                        <input
+                            type="number"
+                            required
+                            min="1"
+                            className={styles.input}
+                            value={quantity}
+                            onChange={e => setQuantity(parseInt(e.target.value) || 0)}
+                        />
+                    </div>
+                    <div className={styles.modalActions}>
+                        <button type="button" onClick={onClose} className={styles.cancelButton}>Cancelar</button>
+                        <button type="submit" disabled={loading} className={styles.submitButton}>
+                            <Save size={20} />
+                            Confirmar Saída
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
