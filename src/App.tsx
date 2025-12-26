@@ -13,6 +13,7 @@ import { ProductsPage } from './pages/Products/ProductsPage';
 import { RequisitionsPage } from './pages/Inventory/RequisitionsPage';
 import { UnitsPage } from './pages/Settings/Units/UnitsPage';
 import { SuppliersPage } from './pages/Purchases/Suppliers/SuppliersPage';
+import { SupplierDetailsPage } from './pages/Purchases/Suppliers/SupplierDetailsPage';
 import { InventoryPage } from './pages/Inventory/InventoryPage';
 import { InventoryMovementsPage } from './pages/Inventory/InventoryMovementsPage';
 
@@ -39,6 +40,7 @@ function App() {
               <Route path="purchases" element={<Purchases />} />
               <Route path="purchases/products" element={<ProductsPage />} />
               <Route path="purchases/suppliers" element={<SuppliersPage />} />
+              <Route path="purchases/suppliers/:id" element={<SupplierDetailsPage />} />
 
 
               <Route path="users" element={<UserList />} />

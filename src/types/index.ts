@@ -23,6 +23,7 @@ export interface User {
     profile?: Profile;
 }
 
+
 export interface Requisition {
     id: string;
     user_id: string;
@@ -31,4 +32,23 @@ export interface Requisition {
     unit_id?: string | null;
     unit?: Unit;
     created_at: string;
+}
+
+export interface Supplier {
+    id: string;
+    name: string;
+    cnpj?: string | null;
+    address_street?: string | null;
+    address_number?: string | null;
+    address_complement?: string | null;
+    address_neighborhood?: string | null;
+    address_city?: string | null;
+    address_state?: string | null;
+    phone?: string | null;
+    whatsapp?: string | null;
+    seller_name?: string | null;
+    seller_phone?: string | null;
+    seller_whatsapp?: string | null;
+    created_at?: string;
+    updated_at?: string;
 }
