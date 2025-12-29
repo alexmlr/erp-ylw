@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Trash2, Loader2, Search, Image as ImageIcon } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
+import { notificationService } from '../../services/notificationService';
 import styles from './Inventory.module.css';
 
 interface Product {
@@ -262,6 +263,24 @@ export const RequisitionFormModal: React.FC<RequisitionFormModalProps> = ({ isOp
                         })
                         .eq('id', reqId);
                     if (error) throw error;
+
+                    // Notify Commercial Group on Status Change
+                    const { data: commercialUsers } = await supabase
+                        .from('profiles')
+                        .select('id')
+                        .eq('role', 'commercial');
+
+                    if (commercialUsers) {
+                        for (const u of commercialUsers) {
+                            await notificationService.createNotification({
+                                user_id: u.id,
+                                type: 'requisition',
+                                title: 'Atualização de Requisição',
+                                message: `O status da requisição foi alterado para ${status.replace('_', ' ')}.`,
+                                link: '/inventory/requisitions'
+                            });
+                        }
+                    }
                 } else if (unitId !== requisitionToEdit.unit_id) {
                     // Check if only unit changed
                     const { error } = await supabase
@@ -311,6 +330,24 @@ export const RequisitionFormModal: React.FC<RequisitionFormModalProps> = ({ isOp
                     })));
 
                 if (itemsError) throw itemsError;
+
+                // Notify Administrative Group on New Requisition
+                const { data: adminUsers } = await supabase
+                    .from('profiles')
+                    .select('id')
+                    .eq('role', 'administrative');
+
+                if (adminUsers) {
+                    for (const admin of adminUsers) {
+                        await notificationService.createNotification({
+                            user_id: admin.id,
+                            type: 'requisition',
+                            title: 'Nova Requisição',
+                            message: `Nova requisição criada por ${profile?.full_name || 'Usuário'}.`,
+                            link: '/inventory/requisitions'
+                        });
+                    }
+                }
             }
 
             onSave();
