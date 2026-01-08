@@ -3,6 +3,7 @@ import { X, Save, Trash2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import styles from './Inventory.module.css';
+import { loggerService } from '../../services/loggerService';
 
 interface OutboundModalProps {
     isOpen: boolean;
@@ -131,6 +132,18 @@ export const OutboundModal: React.FC<OutboundModalProps> = ({ isOpen, onClose, o
 
                 if (updateError) throw updateError;
             }
+
+            // Log Action
+            await loggerService.logAction({
+                action: 'Saída de Inventário',
+                entity: 'Inventário',
+                details: {
+                    items_count: items.length,
+                    unit_id: selectedUnit,
+                    date: date,
+                    items: items.map(i => ({ name: i.product_name, quantity: i.quantity }))
+                }
+            });
 
             onSuccess();
             onClose();

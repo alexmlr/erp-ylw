@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { X, Save, Loader2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import styles from './UserCreateModal.module.css';
+import { loggerService } from '../../services/loggerService';
 
 interface UserCreateModalProps {
     isOpen: boolean;
@@ -95,6 +96,14 @@ export const UserCreateModal: React.FC<UserCreateModalProps> = ({ isOpen, onClos
                     // In a real app we might want to retry or alert.
                 }
             }
+
+            // Log Create
+            await loggerService.logAction({
+                action: 'Criou Usuário',
+                entity: 'Usuário',
+                entity_id: authData.user.id,
+                details: { name: fullName, email: email, role: role }
+            });
 
             onSuccess();
             onClose();

@@ -3,6 +3,7 @@ import { X, Trash2, Loader2, Search, Image as ImageIcon } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { notificationService } from '../../services/notificationService';
+import { loggerService } from '../../services/loggerService';
 import styles from './Inventory.module.css';
 
 interface Product {
@@ -15,6 +16,7 @@ interface Product {
 interface RequisitionItem {
     product_id: string;
     quantity: number;
+    authorized_quantity?: number;
     product_name?: string; // For display
     unit?: string;
     image_url?: string | null;
@@ -107,6 +109,7 @@ export const RequisitionFormModal: React.FC<RequisitionFormModalProps> = ({ isOp
                 .from('requisition_items')
                 .select(`
                     quantity,
+                    authorized_quantity,
                     product:products (id, name, unit, image_url)
                 `)
                 .eq('requisition_id', requisitionToEdit.id);
@@ -116,6 +119,7 @@ export const RequisitionFormModal: React.FC<RequisitionFormModalProps> = ({ isOp
             const loadedItems = data.map((item: any) => ({
                 product_id: item.product.id,
                 quantity: item.quantity,
+                authorized_quantity: item.authorized_quantity,
                 product_name: item.product.name,
                 unit: item.product.unit,
                 image_url: item.product.image_url
@@ -151,6 +155,7 @@ export const RequisitionFormModal: React.FC<RequisitionFormModalProps> = ({ isOp
             {
                 product_id: product.id,
                 quantity: quantity,
+                authorized_quantity: quantity,
                 product_name: product.name,
                 unit: product.unit,
                 image_url: product.image_url
@@ -170,6 +175,15 @@ export const RequisitionFormModal: React.FC<RequisitionFormModalProps> = ({ isOp
         setItems(prev => {
             const newItems = [...prev];
             newItems[index].quantity = newQty;
+            return newItems;
+        });
+    };
+
+    const handleUpdateAuthorizedQuantity = (index: number, newQty: number) => {
+        if (newQty < 0) return;
+        setItems(prev => {
+            const newItems = [...prev];
+            newItems[index].authorized_quantity = newQty;
             return newItems;
         });
     };
@@ -197,6 +211,7 @@ export const RequisitionFormModal: React.FC<RequisitionFormModalProps> = ({ isOp
                     if (status === 'ENTREGUE' && requisitionToEdit.status !== 'ENTREGUE') {
                         // 1. Verify Stock for ALL items first
                         for (const item of items) {
+                            const qtyToDeduct = item.authorized_quantity ?? item.quantity;
                             const { data: prodData, error: prodError } = await supabase
                                 .from('products')
                                 .select('quantity, name')
@@ -207,8 +222,8 @@ export const RequisitionFormModal: React.FC<RequisitionFormModalProps> = ({ isOp
                                 throw new Error(`Erro ao verificar estoque do produto: ${item.product_name}`);
                             }
 
-                            if (prodData.quantity < item.quantity) {
-                                throw new Error(`Estoque insuficiente para "${item.product_name}". Disponível: ${prodData.quantity}, Solicitado: ${item.quantity}`);
+                            if (prodData.quantity < qtyToDeduct) {
+                                throw new Error(`Estoque insuficiente para "${item.product_name}". Disponível: ${prodData.quantity}, Solicitado/Autorizado: ${qtyToDeduct}`);
                             }
                         }
 
@@ -228,11 +243,11 @@ export const RequisitionFormModal: React.FC<RequisitionFormModalProps> = ({ isOp
                                     .insert({
                                         product_id: item.product_id,
                                         type: 'OUT',
-                                        quantity: item.quantity,
+                                        quantity: item.authorized_quantity ?? item.quantity,
                                         unit_id: unitId || requisitionToEdit.unit_id || null, // Use current form unit or existing
                                         user_id: profile?.id,
                                         movement_date: new Date().toISOString(),
-                                        reason: `Requisição #${requisitionToEdit.id} - Entregue`
+                                        reason: `Requisição #${String(requisitionToEdit.display_id || requisitionToEdit.id).padStart(5, '0')} - Entregue`
                                     });
 
                                 if (moveError) {
@@ -245,7 +260,7 @@ export const RequisitionFormModal: React.FC<RequisitionFormModalProps> = ({ isOp
                                 // Update Product Quantity
                                 const { error: updateError } = await supabase
                                     .from('products')
-                                    .update({ quantity: prodData.quantity - item.quantity })
+                                    .update({ quantity: prodData.quantity - (item.authorized_quantity ?? item.quantity) })
                                     .eq('id', item.product_id);
 
                                 if (updateError) {
@@ -264,22 +279,44 @@ export const RequisitionFormModal: React.FC<RequisitionFormModalProps> = ({ isOp
                         .eq('id', reqId);
                     if (error) throw error;
 
-                    // Notify Commercial Group on Status Change
-                    const { data: commercialUsers } = await supabase
+                    // Log Action
+                    await loggerService.logAction({
+                        action: 'Mudança de Status',
+                        entity: 'Requisição',
+                        entity_id: reqId,
+                        details: {
+                            status: status,
+                            previous_status: requisitionToEdit.status,
+                            message: `Alterou status da requisição número #${String(requisitionToEdit.display_id || requisitionToEdit.id).padStart(5, '0')} de ${requisitionToEdit.status} para ${status}`
+                        }
+                    });
+
+                    // Notify Administrative Group AND Requester on Status Change
+                    const { data: adminUsers } = await supabase
                         .from('profiles')
                         .select('id')
-                        .eq('role', 'commercial');
+                        .eq('role', 'administrative');
 
-                    if (commercialUsers) {
-                        for (const u of commercialUsers) {
-                            await notificationService.createNotification({
-                                user_id: u.id,
-                                type: 'requisition',
-                                title: 'Atualização de Requisição',
-                                message: `O status da requisição foi alterado para ${status.replace('_', ' ')}.`,
-                                link: '/inventory/requisitions'
-                            });
-                        }
+                    const recipients = new Set<string>();
+
+                    // Add admins
+                    if (adminUsers) {
+                        adminUsers.forEach(u => recipients.add(u.id));
+                    }
+
+                    // Add requester
+                    if (requisitionToEdit.requester_id) {
+                        recipients.add(requisitionToEdit.requester_id);
+                    }
+
+                    for (const userId of recipients) {
+                        await notificationService.createNotification({
+                            user_id: userId,
+                            type: 'requisition',
+                            title: 'Atualização de Requisição',
+                            message: `O status da requisição #${String(requisitionToEdit.display_id || requisitionToEdit.id).padStart(5, '0')} foi alterado para ${status.replace('_', ' ')}.`,
+                            link: '/inventory/requisitions'
+                        });
                     }
                 } else if (unitId !== requisitionToEdit.unit_id) {
                     // Check if only unit changed
@@ -301,7 +338,8 @@ export const RequisitionFormModal: React.FC<RequisitionFormModalProps> = ({ isOp
                         .insert(items.map(item => ({
                             requisition_id: reqId,
                             product_id: item.product_id,
-                            quantity: item.quantity
+                            quantity: item.quantity,
+                            authorized_quantity: item.authorized_quantity ?? item.quantity
                         })));
                     if (itemsError) throw itemsError;
                 }
@@ -326,10 +364,23 @@ export const RequisitionFormModal: React.FC<RequisitionFormModalProps> = ({ isOp
                     .insert(items.map(item => ({
                         requisition_id: reqId,
                         product_id: item.product_id,
-                        quantity: item.quantity
+                        quantity: item.quantity,
+                        authorized_quantity: item.authorized_quantity ?? item.quantity
                     })));
 
                 if (itemsError) throw itemsError;
+
+                // Log Action
+                await loggerService.logAction({
+                    action: 'Criou Requisição',
+                    entity: 'Requisição',
+                    entity_id: reqId,
+                    details: {
+                        items_count: items.length,
+                        unit_id: unitId,
+                        items: items.map(i => ({ name: i.product_name, quantity: i.quantity }))
+                    }
+                });
 
                 // Notify Administrative Group on New Requisition
                 const { data: adminUsers } = await supabase
@@ -343,7 +394,7 @@ export const RequisitionFormModal: React.FC<RequisitionFormModalProps> = ({ isOp
                             user_id: admin.id,
                             type: 'requisition',
                             title: 'Nova Requisição',
-                            message: `Nova requisição criada por ${profile?.full_name || 'Usuário'}.`,
+                            message: `Nova requisição criada por ${profile?.full_name || 'Usuário'} (Pedido #${String(reqData.display_id).padStart(5, '0')}).`,
                             link: '/inventory/requisitions'
                         });
                     }
@@ -360,8 +411,12 @@ export const RequisitionFormModal: React.FC<RequisitionFormModalProps> = ({ isOp
         }
     };
 
+    const normalizeText = (text: string) => {
+        return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    };
+
     const filteredProducts = products.filter(p =>
-        p.name.toLowerCase().includes(searchTerm.toLowerCase())
+        normalizeText(p.name).includes(normalizeText(searchTerm))
     );
 
     if (!isOpen) return null;
@@ -477,7 +532,8 @@ export const RequisitionFormModal: React.FC<RequisitionFormModalProps> = ({ isOp
                         <thead>
                             <tr>
                                 <th>Produto</th>
-                                <th className="w-32">Qtd</th>
+                                <th className="w-24">Qtd</th>
+                                {canChangeStatus && <th className="w-24">Qtd Aut.</th>}
                                 {!isReadOnly && <th className="w-10"></th>}
                             </tr>
                         </thead>
@@ -498,8 +554,11 @@ export const RequisitionFormModal: React.FC<RequisitionFormModalProps> = ({ isOp
                                             </div>
                                         </td>
                                         <td>
-                                            {/* Admin can edit quantity of existing items */}
-                                            {canChangeStatus ? (
+                                            {/* Admin can edit quantity if creating, but strictly 'Qtd' is what was requested.
+                                                If editing existing, 'Qtd' is immutable Request. 'Qtd Aut' is mutable.
+                                                If creating new, we just use Qtd.
+                                            */}
+                                            {!requisitionToEdit && canChangeStatus ? (
                                                 <input
                                                     type="number"
                                                     min="1"
@@ -511,6 +570,17 @@ export const RequisitionFormModal: React.FC<RequisitionFormModalProps> = ({ isOp
                                                 <span>{item.quantity}</span>
                                             )}
                                         </td>
+                                        {canChangeStatus && (
+                                            <td>
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    value={item.authorized_quantity ?? item.quantity}
+                                                    onChange={(e) => handleUpdateAuthorizedQuantity(idx, parseInt(e.target.value))}
+                                                    className={styles.smallInput}
+                                                />
+                                            </td>
+                                        )}
                                         {!isReadOnly && (
                                             <td>
                                                 <button

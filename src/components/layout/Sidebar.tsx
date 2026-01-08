@@ -26,7 +26,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
         if (!profile) return false;
         if (profile.role === 'admin' || profile.role === 'manager') return true;
         if (profile.role === 'administrative' && module === 'inventory') return true;
-        if (profile.role === 'commercial' && module === 'inventory') return true;
+        // Commercial needs explicit permission
         return profile.permissions?.includes(module) || false;
     };
 
@@ -53,21 +53,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
             path: '/registrations',
             label: 'Cadastros',
             icon: Database,
-            show: true,
+            // Show if user has access to any child module (Products via inventory, Suppliers via purchases)
+            // or is an admin/manager/administrative (who have default access)
+            show: checkRole(['admin', 'manager', 'administrative']) || hasPermission('inventory') || hasPermission('purchases'),
             children: [
-                // Products: Admin, Manager, Administrative
+                // Products: Admin, Manager, Administrative OR Inventory Permission
                 {
                     path: '/inventory/products',
                     label: 'Produtos',
                     icon: Box,
-                    show: checkRole(['admin', 'manager', 'administrative'])
+                    show: checkRole(['admin', 'manager', 'administrative']) || hasPermission('inventory')
                 },
-                // Suppliers: Admin, Manager, Administrative
+                // Suppliers: Admin, Manager, Administrative OR Purchases Permission
                 {
                     path: '/purchases/suppliers',
                     label: 'Fornecedores',
                     icon: Truck,
-                    show: checkRole(['admin', 'manager', 'administrative'])
+                    show: checkRole(['admin', 'manager', 'administrative']) || hasPermission('purchases')
                 },
                 // Users: Admin, Manager
                 {
@@ -89,8 +91,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
             path: '/inventory',
             label: 'Inventário',
             icon: Package,
-            // Inventory: Admin, Manager, Commercial, Administrative
-            show: checkRole(['admin', 'manager', 'commercial', 'administrative']) || hasPermission('inventory'),
+            // Inventory: Admin, Manager, Administrative OR Inventory Permission
+            // Commercial removed from default role list
+            show: checkRole(['admin', 'manager', 'administrative']) || hasPermission('inventory'),
             children: [
                 // Requisitions was here, now moved to root
             ]
@@ -104,6 +107,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                 { path: '/purchases/quotes', label: 'Cotações', icon: FileSpreadsheet, show: true },
                 { path: '/purchases/suppliers', label: 'Fornecedores', icon: Truck, show: true },
             ]
+        },
+        {
+            path: '/logs',
+            label: 'Logs',
+            icon: FileText,
+            show: checkRole(['admin', 'manager'])
         },
         {
             path: '/settings',

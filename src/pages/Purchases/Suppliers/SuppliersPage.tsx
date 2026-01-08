@@ -6,6 +6,7 @@ import styles from './Suppliers.module.css';
 import type { Supplier } from '../../../types';
 import { supplierService } from '../../../services/supplierService';
 import { SupplierModal } from './SupplierModal';
+import { loggerService } from '../../../services/loggerService';
 
 export const SuppliersPage: React.FC = () => {
     const navigate = useNavigate();
@@ -45,6 +46,13 @@ export const SuppliersPage: React.FC = () => {
         if (window.confirm(`Tem certeza que deseja excluir o fornecedor ${name}?`)) {
             try {
                 await supplierService.deleteSupplier(id);
+                // Log Delete
+                await loggerService.logAction({
+                    action: 'Excluiu Fornecedor',
+                    entity: 'Fornecedor',
+                    entity_id: id,
+                    details: { name: name }
+                });
                 loadSuppliers();
             } catch (error) {
                 console.error('Error deleting supplier:', error);

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Save, Search } from 'lucide-react';
 import { supabase } from '../../../lib/supabase';
 import styles from './Units.module.css';
+import { loggerService } from '../../../services/loggerService';
 
 interface UnitModalProps {
     isOpen: boolean;
@@ -62,12 +63,32 @@ export const UnitModal: React.FC<UnitModalProps> = ({ isOpen, onClose, onSave, u
                     .eq('id', unit.id);
 
                 if (error) throw error;
+
+                // Log Update
+                await loggerService.logAction({
+                    action: 'Atualizou Unidade',
+                    entity: 'Unidade',
+                    entity_id: unit.id,
+                    details: { name }
+                });
             } else {
-                const { error } = await supabase
+                const { data: newUnit, error } = await supabase
                     .from('units')
-                    .insert([{ name, address }]);
+                    .insert([{ name, address }])
+                    .select()
+                    .single();
 
                 if (error) throw error;
+
+                // Log Create
+                if (newUnit) {
+                    await loggerService.logAction({
+                        action: 'Criou Unidade',
+                        entity: 'Unidade',
+                        entity_id: newUnit.id,
+                        details: { name }
+                    });
+                }
             }
 
             onSave();

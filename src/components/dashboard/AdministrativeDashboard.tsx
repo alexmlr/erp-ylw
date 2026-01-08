@@ -4,6 +4,9 @@ import { useAuth } from '../../contexts/AuthContext';
 import { FileText, Clock, ShoppingCart, Truck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import styles from './Dashboard.module.css';
+import { RequisitionFormModal } from '../../pages/Inventory/RequisitionFormModal';
+import { PendingRequisitionSelector } from './PendingRequisitionSelector';
+import { PlusCircle, Edit } from 'lucide-react';
 
 export const AdministrativeDashboard: React.FC = () => {
     const { profile } = useAuth();
@@ -14,6 +17,11 @@ export const AdministrativeDashboard: React.FC = () => {
         total: 0
     });
     const [loading, setLoading] = useState(true);
+
+    // Modal States
+    const [isNewReqModalOpen, setIsNewReqModalOpen] = useState(false);
+    const [isEditSelectorOpen, setIsEditSelectorOpen] = useState(false);
+    const [editingRequisition, setEditingRequisition] = useState<any | null>(null);
 
     useEffect(() => {
         fetchData();
@@ -45,7 +53,8 @@ id,
     created_at,
     requester_id,
     profiles:requester_id (full_name),
-        requisition_items(quantity)
+        requisition_items(quantity),
+        display_id
             `)
                 .order('created_at', { ascending: false })
                 .limit(5);
@@ -82,6 +91,32 @@ id,
     return (
         <div className={styles.container}>
             <h1 className={styles.title}>Dashboard Administrativo</h1>
+
+            {/* Action Buttons */}
+            <div className={styles.actionButtonsHeader}>
+                <button
+                    className={`${styles.actionButton} ${styles.actionButtonPrimary}`}
+                    onClick={() => {
+                        setEditingRequisition(null);
+                        setIsNewReqModalOpen(true);
+                    }}
+                >
+                    <div className={styles.actionButtonIcon}>
+                        <PlusCircle size={32} />
+                    </div>
+                    Novo Pedido
+                </button>
+
+                <button
+                    className={`${styles.actionButton} ${styles.actionButtonSecondary}`}
+                    onClick={() => setIsEditSelectorOpen(true)}
+                >
+                    <div className={styles.actionButtonIcon}>
+                        <Edit size={32} />
+                    </div>
+                    Editar Pedido
+                </button>
+            </div>
 
             {/* KPI Cards */}
             <div className={`${styles.grid} ${styles.grid4} `}>
@@ -148,6 +183,7 @@ id,
                         <table className={styles.table}>
                             <thead>
                                 <tr>
+                                    <th className={styles.th}>ID</th>
                                     <th className={styles.th}>Solicitante</th>
                                     <th className={styles.th}>Data</th>
                                     <th className={styles.th}>Status</th>
@@ -156,6 +192,7 @@ id,
                             <tbody>
                                 {recentRequisitions.map((req) => (
                                     <tr key={req.id} className={styles.tr}>
+                                        <td className={styles.td}>#{req.display_id?.toString().padStart(5, '0') || '...'}</td>
                                         <td className={styles.td}>
                                             {req.profiles?.full_name || 'Usuário'}
                                         </td>
@@ -193,6 +230,30 @@ id,
                     </div>
                 )}
             </div>
-        </div>
+
+
+            {/* Modals */}
+            <RequisitionFormModal
+                isOpen={isNewReqModalOpen}
+                onClose={() => {
+                    setIsNewReqModalOpen(false);
+                    setEditingRequisition(null);
+                }}
+                onSave={() => {
+                    fetchData(); // Refresh stats
+                }}
+                requisitionToEdit={editingRequisition}
+            />
+
+            <PendingRequisitionSelector
+                isOpen={isEditSelectorOpen}
+                onClose={() => setIsEditSelectorOpen(false)}
+                onSelect={(req) => {
+                    setEditingRequisition(req);
+                    setIsEditSelectorOpen(false);
+                    setIsNewReqModalOpen(true); // Re-use the form modal for editing
+                }}
+            />
+        </div >
     );
 };

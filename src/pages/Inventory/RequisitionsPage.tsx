@@ -125,6 +125,7 @@ export const RequisitionsPage: React.FC = () => {
                     <table className="w-full">
                         <thead className="bg-gray-50">
                             <tr>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
                                 {activeTab === 'abertas' && (
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solicitante</th>
@@ -137,6 +138,9 @@ export const RequisitionsPage: React.FC = () => {
                         <tbody className="bg-white divide-y divide-gray-200">
                             {requisitions.map((req) => (
                                 <tr key={req.id} className="hover:bg-gray-50">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                        #{req.display_id?.toString().padStart(5, '0') || '...'}
+                                    </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                         {formatDate(req.created_at)}
                                     </td>

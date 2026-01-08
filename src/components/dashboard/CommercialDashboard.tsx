@@ -4,6 +4,9 @@ import { useAuth } from '../../contexts/AuthContext';
 import { FileText, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import styles from './Dashboard.module.css';
+import { RequisitionFormModal } from '../../pages/Inventory/RequisitionFormModal';
+import { PendingRequisitionSelector } from './PendingRequisitionSelector';
+import { PlusCircle, Edit } from 'lucide-react';
 
 export const CommercialDashboard: React.FC = () => {
     const { profile } = useAuth();
@@ -14,6 +17,11 @@ export const CommercialDashboard: React.FC = () => {
         total: 0
     });
     const [loading, setLoading] = useState(true);
+
+    // Modal States
+    const [isNewReqModalOpen, setIsNewReqModalOpen] = useState(false);
+    const [isEditSelectorOpen, setIsEditSelectorOpen] = useState(false);
+    const [editingRequisition, setEditingRequisition] = useState<any | null>(null);
 
     useEffect(() => {
         if (profile?.id) {
@@ -49,7 +57,8 @@ export const CommercialDashboard: React.FC = () => {
                     requisition_items (
                         quantity,
                         products (name)
-                    )
+                    ),
+                    display_id
                 `)
                 .eq('requester_id', profile?.id)
                 .order('created_at', { ascending: false })
@@ -70,6 +79,32 @@ export const CommercialDashboard: React.FC = () => {
     return (
         <div className={styles.container}>
             <h1 className={styles.title}>Dashboard Comercial</h1>
+
+            {/* Action Buttons */}
+            <div className={styles.actionButtonsHeader}>
+                <button
+                    className={`${styles.actionButton} ${styles.actionButtonPrimary}`}
+                    onClick={() => {
+                        setEditingRequisition(null);
+                        setIsNewReqModalOpen(true);
+                    }}
+                >
+                    <div className={styles.actionButtonIcon}>
+                        <PlusCircle size={32} />
+                    </div>
+                    Novo Pedido
+                </button>
+
+                <button
+                    className={`${styles.actionButton} ${styles.actionButtonSecondary}`}
+                    onClick={() => setIsEditSelectorOpen(true)}
+                >
+                    <div className={styles.actionButtonIcon}>
+                        <Edit size={32} />
+                    </div>
+                    Editar Pedido
+                </button>
+            </div>
 
             <div className={styles.grid}>
                 <div className={styles.card}>
@@ -124,7 +159,7 @@ export const CommercialDashboard: React.FC = () => {
                         <tbody>
                             {recentRequisitions.map((req) => (
                                 <tr key={req.id} className={styles.tr}>
-                                    <td className={styles.td}>#{req.id.slice(0, 8)}</td>
+                                    <td className={styles.td}>#{req.display_id?.toString().padStart(5, '0') || '...'}</td>
                                     <td className={styles.td}>
                                         {new Date(req.created_at).toLocaleDateString('pt-BR')}
                                     </td>
@@ -133,8 +168,8 @@ export const CommercialDashboard: React.FC = () => {
                                     </td>
                                     <td className={styles.td}>
                                         <span className={`${styles.badge} ${req.status === 'pending' ? styles.badgePending :
-                                                req.status === 'approved' ? styles.badgeApproved :
-                                                    req.status === 'rejected' ? styles.badgeRejected : styles.badgeDefault
+                                            req.status === 'approved' ? styles.badgeApproved :
+                                                req.status === 'rejected' ? styles.badgeRejected : styles.badgeDefault
                                             }`}>
                                             {req.status === 'pending' ? 'Pendente' :
                                                 req.status === 'approved' ? 'Aprovado' :
@@ -154,6 +189,30 @@ export const CommercialDashboard: React.FC = () => {
                     </table>
                 </div>
             </div>
-        </div>
+
+
+            {/* Modals */}
+            <RequisitionFormModal
+                isOpen={isNewReqModalOpen}
+                onClose={() => {
+                    setIsNewReqModalOpen(false);
+                    setEditingRequisition(null);
+                }}
+                onSave={() => {
+                    fetchData(); // Refresh stats
+                }}
+                requisitionToEdit={editingRequisition}
+            />
+
+            <PendingRequisitionSelector
+                isOpen={isEditSelectorOpen}
+                onClose={() => setIsEditSelectorOpen(false)}
+                onSelect={(req) => {
+                    setEditingRequisition(req);
+                    setIsEditSelectorOpen(false);
+                    setIsNewReqModalOpen(true); // Re-use the form modal for editing
+                }}
+            />
+        </div >
     );
 };

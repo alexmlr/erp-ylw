@@ -11,6 +11,7 @@ export interface Profile {
     full_name: string | null;
     avatar_url: string | null;
     role: 'admin' | 'manager' | 'administrative' | 'commercial' | 'user' | string;
+    email?: string;
     permissions?: string[];
     unit_id?: string | null;
     unit?: Unit;

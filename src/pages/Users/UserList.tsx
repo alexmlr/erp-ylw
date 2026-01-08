@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import type { Profile } from '../../types';
-import { Loader2, Plus, Shield } from 'lucide-react';
+import { Loader2, Plus, Pencil, X } from 'lucide-react';
 import styles from './UserList.module.css';
-import { PermissionsModal } from './PermissionsModal';
+import { UserEditModal } from './UserEditModal';
 import { UserCreateModal } from './UserCreateModal';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -11,7 +11,7 @@ export const UserList: React.FC = () => {
     const [users, setUsers] = useState<Profile[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
-    const [isPermissionsModalOpen, setIsPermissionsModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const { profile: currentUser } = useAuth();
 
@@ -35,9 +35,44 @@ export const UserList: React.FC = () => {
         }
     };
 
-    const handlePermissionsClick = (user: Profile) => {
+    const handleEditClick = (user: Profile) => {
         setSelectedUser(user);
-        setIsPermissionsModalOpen(true);
+        setIsEditModalOpen(true);
+    };
+
+    const handleDeleteClick = async (user: Profile) => {
+        if (!confirm(`Tem certeza que deseja excluir o usuário ${user.full_name}?`)) return;
+
+        try {
+            // Note: Deleting from 'profiles' usually requires deleting from auth.users first if there's a trigger,
+            // or vice-verse depending on cascade. 
+            // Since we don't have a direct admin API here for auth.users, and we are likely relying on shared logic:
+            // if we delete profile, it might not delete the auth user without an edge function. 
+            // However, usually deleting the profile (if RLS allows) is the first step.
+            // CAUTION: Standard Supabase setups usually CASCADE from auth.users -> public.profiles.
+            // So to delete a user properly, we need to delete from auth.users which is an admin-only RPC or API call.
+            // If I just delete the profile, the auth user remains.
+            // For now, I will try to delete the profile. If it fails due to FK, I will notify the limitation.
+            // Assuming there might be an 'active' flag or we just delete the profile.
+
+            const { error } = await supabase
+                .from('profiles')
+                .delete()
+                .eq('id', user.id);
+
+            if (error) {
+                console.error("Error deleting profile:", error);
+                alert("Erro ao excluir usuário. Talvez seja necessário permissão de super-admin no Supabase.");
+                return;
+            }
+
+            setUsers(users.filter(u => u.id !== user.id));
+            alert('Usuário excluído (perfil) com sucesso.');
+
+        } catch (error) {
+            console.error('Error deleting user:', error);
+            alert('Erro ao excluir usuário.');
+        }
     };
 
     const canManageUsers = currentUser?.role === 'admin' || currentUser?.role === 'manager';
@@ -101,13 +136,22 @@ export const UserList: React.FC = () => {
                                     </td>
                                     {canManageUsers && (
                                         <td>
-                                            <button
-                                                onClick={() => handlePermissionsClick(user)}
-                                                className="text-primary hover:text-primary-hover font-medium text-sm flex items-center gap-1.5 px-3 py-1.5 hover:bg-yellow-50 rounded-md transition-colors"
-                                                title="Gerenciar Acessos"
-                                            >
-                                                <Shield size={16} /> Acessos
-                                            </button>
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    onClick={() => handleEditClick(user)}
+                                                    className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                                                    title="Editar Usuário"
+                                                >
+                                                    <Pencil size={18} />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteClick(user)}
+                                                    className="p-1.5 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                                                    title="Excluir Usuário"
+                                                >
+                                                    <X size={18} />
+                                                </button>
+                                            </div>
                                         </td>
                                     )}
                                 </tr>
@@ -124,9 +168,9 @@ export const UserList: React.FC = () => {
                 )}
             </div>
 
-            <PermissionsModal
-                isOpen={isPermissionsModalOpen}
-                onClose={() => setIsPermissionsModalOpen(false)}
+            <UserEditModal
+                isOpen={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
                 user={selectedUser}
                 onUpdate={fetchUsers}
             />

@@ -4,6 +4,7 @@ import { supabase } from '../../lib/supabase';
 import { ProductCard, type Product } from './ProductCard';
 import { ProductModal } from './ProductModal';
 import styles from './Products.module.css';
+import { loggerService } from '../../services/loggerService';
 
 export const ProductsPage: React.FC = () => {
     const [products, setProducts] = useState<Product[]>([]);
@@ -53,6 +54,23 @@ export const ProductsPage: React.FC = () => {
                 .eq('id', id);
 
             if (error) throw error;
+
+            // Log Delete
+            // Warning: Product object isn't fully available here by ID unless we fetch it or pass it.
+            // Since we don't have the product name easily unless we pass it to handleDelete, 
+            // I'll assume we can pass the name or just log the ID.
+            // Better: update handleDelete to take the product object or name.
+            // I will update handleDelete call in the map.
+
+            // Wait, I can find the product in the state before deleting it to get the name for the log.
+            const product = products.find(p => p.id === id);
+            await loggerService.logAction({
+                action: 'Excluiu Produto',
+                entity: 'Produto',
+                entity_id: id,
+                details: { name: product?.name }
+            });
+
             fetchProducts();
         } catch (error) {
             console.error('Error deleting product:', error);

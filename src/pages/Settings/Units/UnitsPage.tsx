@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, MapPin } from 'lucide-react';
+import { Plus, Edit2, MapPin, Trash2 } from 'lucide-react';
 import { supabase } from '../../../lib/supabase';
 import { UnitModal } from './UnitModal';
 import styles from './Units.module.css';
+import { loggerService } from '../../../services/loggerService';
 
 interface Unit {
     id: string;
@@ -70,12 +71,34 @@ export const UnitsPage: React.FC = () => {
                         <div key={unit.id} className={styles.card}>
                             <div className={styles.cardHeader}>
                                 <h3>{unit.name}</h3>
-                                <button
-                                    onClick={() => handleEdit(unit)}
-                                    className={styles.editButton}
-                                >
-                                    <Edit2 size={16} />
-                                </button>
+                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <button
+                                        onClick={() => handleEdit(unit)}
+                                        className={styles.editButton}
+                                    >
+                                        <Edit2 size={16} />
+                                    </button>
+                                    <button
+                                        onClick={async () => {
+                                            if (window.confirm(`Excluir unidade ${unit.name}?`)) {
+                                                const { error } = await supabase.from('units').delete().eq('id', unit.id);
+                                                if (!error) {
+                                                    await loggerService.logAction({
+                                                        action: 'Excluiu Unidade',
+                                                        entity: 'Unidade',
+                                                        entity_id: unit.id,
+                                                        details: { name: unit.name }
+                                                    });
+                                                    fetchUnits();
+                                                }
+                                            }
+                                        }}
+                                        className={styles.editButton}
+                                        style={{ color: 'red' }}
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
+                                </div>
                             </div>
                             <div className={styles.cardContent}>
                                 <div className={styles.infoRow}>

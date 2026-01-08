@@ -7,6 +7,7 @@ import { Login } from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import { Purchases, Settings } from './pages/LoadablePages';
 import { UserList } from './pages/Users/UserList';
+import { AccessRoute } from './components/Auth/AccessRoute';
 import { ProtectedRoute } from './components/Auth/ProtectedRoute';
 import { ProfilePage } from './pages/Profile/Profile';
 import { ProductsPage } from './pages/Products/ProductsPage';
@@ -16,6 +17,7 @@ import { SuppliersPage } from './pages/Purchases/Suppliers/SuppliersPage';
 import { SupplierDetailsPage } from './pages/Purchases/Suppliers/SupplierDetailsPage';
 import { InventoryPage } from './pages/Inventory/InventoryPage';
 import { InventoryMovementsPage } from './pages/Inventory/InventoryMovementsPage';
+import { LogsPage } from './pages/Logs/LogsPage';
 
 function App() {
   return (
@@ -32,20 +34,74 @@ function App() {
             }>
               <Route index element={<Dashboard />} />
 
-              <Route path="inventory" element={<InventoryPage />} />
-              <Route path="inventory/movements" element={<InventoryMovementsPage />} />
-              <Route path="inventory/products" element={<ProductsPage />} />
+              {/* Inventory Module - Access: Admin, Manager, Administrative OR 'inventory' permission */}
+              <Route path="inventory" element={
+                <AccessRoute allowedRoles={['administrative']} requiredPermission="inventory">
+                  <InventoryPage />
+                </AccessRoute>
+              } />
+              <Route path="inventory/movements" element={
+                <AccessRoute allowedRoles={['administrative']} requiredPermission="inventory">
+                  <InventoryMovementsPage />
+                </AccessRoute>
+              } />
+              <Route path="inventory/products" element={
+                <AccessRoute allowedRoles={['administrative']} requiredPermission="inventory">
+                  <ProductsPage />
+                </AccessRoute>
+              } />
+
+              {/* Requisitions - Available to all authenticated users */}
               <Route path="inventory/requisitions" element={<RequisitionsPage />} />
 
-              <Route path="purchases" element={<Purchases />} />
-              <Route path="purchases/products" element={<ProductsPage />} />
-              <Route path="purchases/suppliers" element={<SuppliersPage />} />
-              <Route path="purchases/suppliers/:id" element={<SupplierDetailsPage />} />
+              {/* Purchases Module - Access: Admin, Manager OR 'purchases' permission */}
+              <Route path="purchases" element={
+                <AccessRoute requiredPermission="purchases">
+                  <Purchases />
+                </AccessRoute>
+              } />
+              <Route path="purchases/products" element={
+                <AccessRoute requiredPermission="purchases">
+                  <ProductsPage />
+                </AccessRoute>
+              } />
+              {/* Suppliers - Access: Admin, Manager, Administrative OR 'purchases' permission */}
+              <Route path="purchases/suppliers" element={
+                <AccessRoute allowedRoles={['administrative']} requiredPermission="purchases">
+                  <SuppliersPage />
+                </AccessRoute>
+              } />
+              <Route path="purchases/suppliers/:id" element={
+                <AccessRoute allowedRoles={['administrative']} requiredPermission="purchases">
+                  <SupplierDetailsPage />
+                </AccessRoute>
+              } />
 
 
-              <Route path="users" element={<UserList />} />
-              <Route path="settings" element={<Settings />} />
-              <Route path="settings/units" element={<UnitsPage />} />
+              <Route path="users" element={
+                <AccessRoute allowedRoles={['admin', 'manager']}>
+                  <UserList />
+                </AccessRoute>
+              } />
+
+              <Route path="settings" element={
+                <AccessRoute allowedRoles={['admin']}>
+                  <Settings />
+                </AccessRoute>
+              } />
+
+              <Route path="settings/units" element={
+                <AccessRoute allowedRoles={['admin', 'manager']}>
+                  <UnitsPage />
+                </AccessRoute>
+              } />
+
+              <Route path="logs" element={
+                <AccessRoute allowedRoles={['admin', 'manager']}>
+                  <LogsPage />
+                </AccessRoute>
+              } />
+
               <Route path="profile" element={<ProfilePage />} />
             </Route>
 

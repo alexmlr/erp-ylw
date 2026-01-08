@@ -2,6 +2,146 @@
     padding: 1.5rem;
 }
 
+/* Action Buttons Header */
+.actionButtonsHeader {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.actionButton {
+    flex: 1;
+    min-width: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    border: none;
+    border-radius: 1rem;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    background-color: white;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-main);
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.actionButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    background-color: #F8FAFC;
+    border-color: #CBD5E1;
+}
+
+.actionButtonPrimary {
+    background: linear-gradient(135deg, #EFF6FF 0%, #FFFFFF 100%);
+    border-left: 4px solid #3B82F6;
+}
+
+.actionButtonSecondary {
+    background: linear-gradient(135deg, #FFFBEB 0%, #FFFFFF 100%);
+    border-left: 4px solid #F59E0B;
+}
+
+.actionButtonIcon {
+    padding: 0.75rem;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.actionButtonPrimary .actionButtonIcon {
+    background-color: #DBEAFE;
+    color: #2563EB;
+}
+
+.actionButtonSecondary .actionButtonIcon {
+    background-color: #FEF3C7;
+    color: #D97706;
+}
+
+/* Modal Styles */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 50;
+    padding: 1rem;
+}
+
+.modalContent {
+    background: white;
+    padding: 2rem;
+    border-radius: 0.75rem;
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.modalTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.closeButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #6B7280;
+}
+
+/* Pending Requisition Selector Styles */
+.selectorContainer {
+    overflow-y: auto;
+    flex: 1;
+}
+
+.reqList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.reqItemButton {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.reqItemButton:hover {
+    border-color: #3B82F6;
+    background-color: #EFF6FF;
+}
+
+
+
 .title {
     font-size: 1.5rem;
     font-weight: 700;

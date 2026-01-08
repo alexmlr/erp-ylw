@@ -3,6 +3,7 @@ import { X, Loader2, Image as ImageIcon } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import type { Product } from './ProductCard';
 import styles from './Products.module.css';
+import { loggerService } from '../../services/loggerService';
 
 interface ProductModalProps {
     isOpen: boolean;
@@ -120,12 +121,34 @@ export const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onS
                     .from('products')
                     .update(productData)
                     .eq('id', productToEdit.id);
+
                 if (error) throw error;
+
+                // Log Update
+                await loggerService.logAction({
+                    action: 'Atualizou Produto',
+                    entity: 'Produto',
+                    entity_id: productToEdit.id,
+                    details: { name: productData.name }
+                });
             } else {
-                const { error } = await supabase
+                const { data: newProd, error } = await supabase
                     .from('products')
-                    .insert([productData]);
+                    .insert([productData])
+                    .select()
+                    .single();
+
                 if (error) throw error;
+
+                // Log Create
+                if (newProd) {
+                    await loggerService.logAction({
+                        action: 'Criou Produto',
+                        entity: 'Produto',
+                        entity_id: newProd.id,
+                        details: { name: productData.name }
+                    });
+                }
             }
 
             onSave();

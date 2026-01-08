@@ -4,6 +4,7 @@ import { X, Save } from 'lucide-react';
 import type { Supplier } from '../../../types';
 import { supplierService } from '../../../services/supplierService';
 import styles from './Suppliers.module.css'; // Reusing styles or create specific if needed
+import { loggerService } from '../../../services/loggerService';
 
 interface SupplierModalProps {
     isOpen: boolean;
@@ -67,9 +68,23 @@ export const SupplierModal: React.FC<SupplierModalProps> = ({ isOpen, onClose, o
         setLoading(true);
         try {
             if (supplierToEdit?.id) {
-                await supplierService.updateSupplier(supplierToEdit.id, formData);
+                const updated = await supplierService.updateSupplier(supplierToEdit.id, formData);
+                // Log Update
+                await loggerService.logAction({
+                    action: 'Atualizou Fornecedor',
+                    entity: 'Fornecedor',
+                    entity_id: updated.id,
+                    details: { name: updated.name }
+                });
             } else {
-                await supplierService.createSupplier(formData as any);
+                const created = await supplierService.createSupplier(formData as any);
+                // Log Create
+                await loggerService.logAction({
+                    action: 'Criou Fornecedor',
+                    entity: 'Fornecedor',
+                    entity_id: created.id,
+                    details: { name: created.name }
+                });
             }
             onSave();
             onClose();
