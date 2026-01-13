@@ -420,8 +420,16 @@ const LogRow: React.FC<{ log: LogEntry; units: any[] }> = ({ log, units }) => {
     // Shorten Action Name for UI
     const displayAction = log.action === 'Atualizou Status Requisição' ? 'Mudança de Status' : log.action;
 
+    // Strip HTML for tooltip
+    const stripHtml = (html: string) => {
+        if (!html) return '';
+        return html.replace(/<[^>]*>?/gm, '');
+    };
+
     // Use raw details for tooltip, formatted (clean) for display
-    const tooltipText = typeof log.details?.message === 'string' ? formatStatus(log.details.message) : JSON.stringify(log.details, null, 2);
+    const tooltipText = typeof log.details?.message === 'string'
+        ? stripHtml(formatStatus(log.details.message))
+        : JSON.stringify(log.details, null, 2);
 
     return (
         <tr className={styles.tr}>
