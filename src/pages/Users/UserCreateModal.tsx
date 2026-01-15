@@ -69,6 +69,7 @@ export const UserCreateModal: React.FC<UserCreateModalProps> = ({ isOpen, onClos
                 email,
                 password,
                 options: {
+                    emailRedirectTo: window.location.origin,
                     data: {
                         full_name: fullName,
                         avatar_url: null,
