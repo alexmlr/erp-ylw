@@ -38,17 +38,22 @@ export const Login: React.FC = () => {
             <div className={styles.card}>
                 <div className={styles.header}>
                     {logoUrl ? (
-                        <div className={styles.brandLogo}>
-                            <img
-                                src={logoUrl}
-                                alt="ERP Yellow"
-                            />
-                        </div>
+                        <img
+                            src={logoUrl}
+                            alt="ERP Yellow"
+                            style={{
+                                maxWidth: '170px',
+                                width: 'auto',
+                                height: 'auto',
+                                margin: '0 auto 1.5rem',
+                                display: 'block'
+                            }}
+                        />
                     ) : (
                         <div className={styles.logo}></div>
                     )}
-                    <h1 className={styles.title}>Welcome Back</h1>
-                    <p className={styles.subtitle}>Sign in to ERP Yellow System</p>
+                    <h1 className={styles.title}>Bem vindo</h1>
+                    <p className={styles.subtitle}>Acesse o sistema de ERP da Yellow Self Storage</p>
                 </div>
 
                 {error && <div className={styles.error}>{error}</div>}
@@ -79,7 +84,7 @@ export const Login: React.FC = () => {
                     </div>
 
                     <button type="submit" disabled={loading} className={styles.button}>
-                        {loading ? <Loader2 className="animate-spin" size={20} /> : 'Sign In'}
+                        {loading ? <Loader2 className="animate-spin" size={20} /> : 'Acessar'}
                     </button>
                 </form>
             </div>
