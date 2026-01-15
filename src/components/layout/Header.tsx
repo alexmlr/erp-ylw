@@ -173,7 +173,15 @@ export const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                         <NavLink to="/profile" className={styles.dropdownItem} onClick={() => setDropdownOpen(false)}>
                             <User size={16} /> Perfil
                         </NavLink>
-                        <button onClick={signOut} className={`${styles.dropdownItem} ${styles.logoutButton}`}>
+                        <button onClick={async () => {
+                            try {
+                                await signOut();
+                                setDropdownOpen(false);
+                                navigate('/login');
+                            } catch (error) {
+                                console.error('Error signing out:', error);
+                            }
+                        }} className={`${styles.dropdownItem} ${styles.logoutButton}`}>
                             <LogOut size={16} /> Sair
                         </button>
                     </div>
