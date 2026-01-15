@@ -151,7 +151,11 @@ export const InventoryPage: React.FC = () => {
 
                                     return (
                                         <tr key={product.id}>
-                                            <td>{product.name}</td>
+                                            <td>
+                                                <Link to={`/inventory/product/${product.id}`} className="text-blue-600 hover:text-blue-800 font-medium hover:underline">
+                                                    {product.name}
+                                                </Link>
+                                            </td>
                                             <td>{product.quantity}</td>
                                             <td>{product.unit}</td>
                                             <td>

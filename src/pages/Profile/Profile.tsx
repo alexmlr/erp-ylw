@@ -77,14 +77,14 @@ export const ProfilePage: React.FC = () => {
 
             // Upload to Supabase Storage
             const { error: uploadError } = await supabase.storage
-                .from('profile_picture')
+                .from('library')
                 .upload(filePath, file);
 
             if (uploadError) throw uploadError;
 
             // Get Public URL
             const { data: { publicUrl } } = supabase.storage
-                .from('profile_picture')
+                .from('library')
                 .getPublicUrl(filePath);
 
             // Update Profile

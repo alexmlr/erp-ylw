@@ -16,6 +16,7 @@ import { UnitsPage } from './pages/Settings/Units/UnitsPage';
 import { SuppliersPage } from './pages/Purchases/Suppliers/SuppliersPage';
 import { SupplierDetailsPage } from './pages/Purchases/Suppliers/SupplierDetailsPage';
 import { InventoryPage } from './pages/Inventory/InventoryPage';
+import { ProductDetailsPage } from './pages/Inventory/ProductDetailsPage';
 import { InventoryMovementsPage } from './pages/Inventory/InventoryMovementsPage';
 import { LogsPage } from './pages/Logs/LogsPage';
 
@@ -38,6 +39,11 @@ function App() {
               <Route path="inventory" element={
                 <AccessRoute allowedRoles={['administrative']} requiredPermission="inventory">
                   <InventoryPage />
+                </AccessRoute>
+              } />
+              <Route path="inventory/product/:id" element={
+                <AccessRoute allowedRoles={['administrative']} requiredPermission="inventory">
+                  <ProductDetailsPage />
                 </AccessRoute>
               } />
               <Route path="inventory/movements" element={

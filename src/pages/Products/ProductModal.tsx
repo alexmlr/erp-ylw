@@ -155,7 +155,8 @@ export const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onS
             onClose();
         } catch (error) {
             console.error('Error saving product:', error);
-            alert('Erro ao salvar produto.');
+            const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+            alert(`Erro ao salvar produto: ${errorMessage}`);
         } finally {
             setLoading(false);
         }

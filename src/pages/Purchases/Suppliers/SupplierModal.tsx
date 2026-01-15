@@ -32,6 +32,22 @@ export const SupplierModal: React.FC<SupplierModalProps> = ({ isOpen, onClose, o
         'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
     ];
 
+    const PAYMENT_METHODS = [
+        'Boleto',
+        'Crédito',
+        'Débito',
+        'Depósito bancário',
+        'Dinheiro',
+        'PIX',
+        'Transferência Bancária'
+    ];
+
+    const SHIPPING_TYPES = [
+        'Cobrado',
+        'Gratuito',
+        'Não possui'
+    ];
+
     const formatCNPJ = (value: string) => {
         return value
             .replace(/\D/g, '')
@@ -50,7 +66,7 @@ export const SupplierModal: React.FC<SupplierModalProps> = ({ isOpen, onClose, o
             .replace(/(-\d{4})\d+?$/, '$1');
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         let formattedValue = value;
 
@@ -61,6 +77,16 @@ export const SupplierModal: React.FC<SupplierModalProps> = ({ isOpen, onClose, o
         }
 
         setFormData(prev => ({ ...prev, [name]: formattedValue }));
+    };
+
+    const handlePaymentMethodChange = (method: string) => {
+        setFormData(prev => {
+            const currentMethods = prev.payment_methods || [];
+            const newMethods = currentMethods.includes(method)
+                ? currentMethods.filter(m => m !== method)
+                : [...currentMethods, method];
+            return { ...prev, payment_methods: newMethods };
+        });
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -247,31 +273,50 @@ export const SupplierModal: React.FC<SupplierModalProps> = ({ isOpen, onClose, o
                             className={styles.input}
                         />
                     </div>
-                    <div className={styles.row}>
-                        <div className={styles.formGroup} style={{ flex: 1 }}>
-                            <label>Telefone Vendedor</label>
-                            <input
-                                type="text"
-                                name="seller_phone"
-                                value={formData.seller_phone || ''}
-                                onChange={handleChange}
-                                maxLength={15}
-                                placeholder="(XX) XXXXX-XXXX"
-                                className={styles.input}
-                            />
+
+
+                    <div className={styles.sectionTitle}>Informações Adicionais</div>
+                    <div className={styles.formGroup}>
+                        <label>Formas de Pagamento</label>
+                        <div className={styles.checkboxGroup} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '8px' }}>
+                            {PAYMENT_METHODS.map(method => (
+                                <label key={method} className={styles.checkboxLabel} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                                    <input
+                                        type="checkbox"
+                                        checked={(formData.payment_methods || []).includes(method)}
+                                        onChange={() => handlePaymentMethodChange(method)}
+                                    />
+                                    {method}
+                                </label>
+                            ))}
                         </div>
-                        <div className={styles.formGroup} style={{ flex: 1 }}>
-                            <label>Whatsapp Vendedor</label>
-                            <input
-                                type="text"
-                                name="seller_whatsapp"
-                                value={formData.seller_whatsapp || ''}
-                                onChange={handleChange}
-                                maxLength={15}
-                                placeholder="(XX) XXXXX-XXXX"
-                                className={styles.input}
-                            />
-                        </div>
+                    </div>
+
+                    <div className={styles.formGroup}>
+                        <label>Frete</label>
+                        <select
+                            name="shipping_type"
+                            value={formData.shipping_type || ''}
+                            onChange={handleChange}
+                            className={styles.input}
+                        >
+                            <option value="">Selecione</option>
+                            {SHIPPING_TYPES.map(type => (
+                                <option key={type} value={type}>{type}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className={styles.formGroup}>
+                        <label>Observações</label>
+                        <textarea
+                            name="observations"
+                            value={formData.observations || ''}
+                            onChange={handleChange}
+                            className={styles.input}
+                            rows={4}
+                            style={{ resize: 'vertical' }}
+                        />
                     </div>
 
                     <div className={styles.formActions}>
@@ -284,7 +329,7 @@ export const SupplierModal: React.FC<SupplierModalProps> = ({ isOpen, onClose, o
                         </button>
                     </div>
                 </form>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 };

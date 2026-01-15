@@ -50,6 +50,9 @@ export interface Supplier {
     seller_name?: string | null;
     seller_phone?: string | null;
     seller_whatsapp?: string | null;
+    payment_methods?: string[] | null;
+    shipping_type?: 'Cobrado' | 'Gratuito' | 'Não possui' | null;
+    observations?: string | null;
     created_at?: string;
     updated_at?: string;
 }

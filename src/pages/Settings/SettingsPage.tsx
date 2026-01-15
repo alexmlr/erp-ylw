@@ -28,14 +28,14 @@ export const SettingsPage: React.FC = () => {
             const filePath = `${fileName}`;
 
             const { error: uploadError } = await supabase.storage
-                .from('branding')
+                .from('library')
                 .upload(filePath, file, { cacheControl: '3600', upsert: true });
 
             if (uploadError) throw uploadError;
 
             // 2. Get Public URL
             const { data: { publicUrl } } = supabase.storage
-                .from('branding')
+                .from('library')
                 .getPublicUrl(filePath);
 
             // 3. Update Settings in DB
