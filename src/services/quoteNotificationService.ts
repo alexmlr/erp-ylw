@@ -4,20 +4,22 @@ import { notificationService } from './notificationService';
 export const quoteNotificationService = {
     /**
      * Notify all 'management' (Gestão) users when a new quote is created by an 'administrative' user.
-     * @param authorName Name of the user creating the quote
+     * @param info object containing quoteId and authorName
      */
-    async notifyNewQuote(authorName: string) {
+    async notifyNewQuote(info: { quoteId: string, authorName: string }) {
         try {
-            // Fetch users with role 'management'
+            // Fetch users with role 'manager' OR 'admin' OR 'Gestão' to be safe
             const { data: managementUsers, error } = await supabase
                 .from('profiles')
-                .select('id')
-                .eq('role', 'manager'); // Assuming 'manager' key maps to 'Gestão' group based on context
+                .select('id, role')
+                .in('role', ['manager', 'admin', 'gestao', 'Gestão', 'Gestor']);
 
             if (error) {
                 console.error('Error fetching management users for notification:', error);
                 return;
             }
+
+            console.log('DEBUG: Found management users:', managementUsers);
 
             if (managementUsers) {
                 for (const manager of managementUsers) {
@@ -25,8 +27,8 @@ export const quoteNotificationService = {
                         user_id: manager.id,
                         type: 'quote',
                         title: 'Nova Cotação',
-                        message: `Nova cotação criada por ${authorName}.`,
-                        link: '/purchases/quotes' // Future route
+                        message: `Nova cotação recebida para análise. Autor: ${info.authorName}.`,
+                        link: `/purchases/quotations/${info.quoteId}`
                     });
                 }
             }
@@ -38,12 +40,13 @@ export const quoteNotificationService = {
     /**
      * Notify all 'management' users AND the quote author when status changes.
      * @param quoteId ID of the quote
+     * @param displayId Display ID (formatted)
      * @param newStatus New status string
      * @param authorId User ID of the quote creator (Administrative user)
      */
-    async notifyQuoteStatusChange(quoteId: string, newStatus: string, authorId: string) {
+    async notifyQuoteStatusChange(quoteId: string, displayId: string | number, newStatus: string, authorId: string) {
         try {
-            // Fetch users with role 'management'
+            // Fetch users with role 'manager'
             const { data: managementUsers, error } = await supabase
                 .from('profiles')
                 .select('id')
@@ -65,13 +68,18 @@ export const quoteNotificationService = {
                 recipients.add(authorId);
             }
 
+            let message = `Cotação #${String(displayId).padStart(6, '0')} atualizada para ${newStatus}.`;
+            if (newStatus === 'negotiation') message = `Cotação #${String(displayId).padStart(6, '0')} retornou para negociação.`;
+            if (newStatus === 'approved') message = `Cotação #${String(displayId).padStart(6, '0')} aprovada para compra.`;
+            if (newStatus === 'rejected') message = `Cotação #${String(displayId).padStart(6, '0')} recusada.`;
+
             for (const userId of recipients) {
                 await notificationService.createNotification({
                     user_id: userId,
                     type: 'quote',
                     title: 'Atualização de Cotação',
-                    message: `O status da cotação #${quoteId} foi alterado para ${newStatus}.`,
-                    link: `/purchases/quotes/${quoteId}` // Future route
+                    message: message,
+                    link: `/purchases/quotations/${quoteId}`
                 });
             }
 

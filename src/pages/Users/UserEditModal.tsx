@@ -120,6 +120,8 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({ isOpen, onClose, u
                 avatar_url: avatarUrl
             };
 
+            console.log('UserEditModal Saving:', updates);
+
             const { error: updateError } = await supabase
                 .from('profiles')
                 .update(updates)

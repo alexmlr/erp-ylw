@@ -36,6 +36,14 @@ export const AccessRoute: React.FC<AccessRouteProps> = ({
     }
 
     // 1. Superuser Check (Admin/Manager always access)
+    // Console Log for debugging permissions
+    // console.log('AccessRoute Check:', { 
+    //    path: location.pathname, 
+    //    role: profile.role, 
+    //    required: requiredPermission, 
+    //    userPerms: profile.permissions 
+    // });
+
     if (profile.role === 'admin' || profile.role === 'manager') {
         return <>{children}</>;
     }
@@ -61,5 +69,6 @@ export const AccessRoute: React.FC<AccessRouteProps> = ({
     // If authorized by EITHER role OR permission (logic above involves returns), we are good.
     // If code reaches here, user is unauthorized.
 
+    // If code reaches here, user is unauthorized.
     return <Navigate to="/" replace />;
 };

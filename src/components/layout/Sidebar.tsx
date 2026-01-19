@@ -104,7 +104,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
             icon: ShoppingCart,
             show: hasPermission('purchases'),
             children: [
-                { path: '/purchases/quotes', label: 'Cotações', icon: FileSpreadsheet, show: true },
+                { path: '/purchases/quotations', label: 'Cotações', icon: FileSpreadsheet, show: true },
                 { path: '/purchases/suppliers', label: 'Fornecedores', icon: Truck, show: true },
             ]
         },

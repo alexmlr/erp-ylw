@@ -50,7 +50,16 @@ export const InventoryPage: React.FC = () => {
                 .order(sortColumn, { ascending: sortDirection === 'asc' })
                 .range((page - 1) * itemsPerPage, page * itemsPerPage - 1);
 
-            if (productsData) setProducts(productsData);
+            if (productsData) {
+                // Client-side natural sort adjustment for current page
+                if (sortColumn === 'name') {
+                    productsData.sort((a, b) =>
+                        a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' })
+                    );
+                    if (sortDirection === 'desc') productsData.reverse();
+                }
+                setProducts(productsData);
+            }
             if (count) setTotalPages(Math.ceil(count / itemsPerPage));
 
             // Fetch Recent Inbound

@@ -15,6 +15,8 @@ import { RequisitionsPage } from './pages/Inventory/RequisitionsPage';
 import { UnitsPage } from './pages/Settings/Units/UnitsPage';
 import { SuppliersPage } from './pages/Purchases/Suppliers/SuppliersPage';
 import { SupplierDetailsPage } from './pages/Purchases/Suppliers/SupplierDetailsPage';
+import { QuotationsPage } from './pages/Purchases/QuotationsPage';
+import { QuotationForm } from './pages/Purchases/QuotationForm';
 import { InventoryPage } from './pages/Inventory/InventoryPage';
 import { ProductDetailsPage } from './pages/Inventory/ProductDetailsPage';
 import { InventoryMovementsPage } from './pages/Inventory/InventoryMovementsPage';
@@ -80,6 +82,23 @@ function App() {
               <Route path="purchases/suppliers/:id" element={
                 <AccessRoute allowedRoles={['administrative']} requiredPermission="purchases">
                   <SupplierDetailsPage />
+                </AccessRoute>
+              } />
+
+              {/* Quotations */}
+              <Route path="purchases/quotations" element={
+                <AccessRoute requiredPermission="purchases">
+                  <QuotationsPage />
+                </AccessRoute>
+              } />
+              <Route path="purchases/quotations/new" element={
+                <AccessRoute requiredPermission="purchases">
+                  <QuotationForm />
+                </AccessRoute>
+              } />
+              <Route path="purchases/quotations/:id" element={
+                <AccessRoute requiredPermission="purchases">
+                  <QuotationForm />
                 </AccessRoute>
               } />
 
