@@ -58,7 +58,7 @@
 
 /* Sidebar */
 .sidebar {
-    background-color: var(--color-secondary);
+    background-color: #181D25;
     color: #fff;
     transition: width 0.3s ease;
     display: flex;

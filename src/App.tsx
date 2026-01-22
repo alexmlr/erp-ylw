@@ -4,6 +4,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { BrandingProvider } from './contexts/BrandingContext';
 import { MainLayout } from './components/layout/MainLayout';
 import { Login } from './pages/Login';
+import { ForgotPassword } from './pages/ForgotPassword';
 import Dashboard from './pages/Dashboard';
 import { Purchases, Settings } from './pages/LoadablePages';
 import { UserList } from './pages/Users/UserList';
@@ -29,6 +30,7 @@ function App() {
         <BrandingProvider>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
 
             <Route path="/" element={
               <ProtectedRoute>

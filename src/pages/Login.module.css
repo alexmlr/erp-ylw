@@ -1,71 +1,140 @@
+/* Main Container: Split Screen */
 .container {
+    display: flex;
     min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, var(--color-background) 0%, #E2E8F0 100%);
-}
-
-.card {
-    background: var(--color-surface);
-    padding: 2.5rem;
-    border-radius: 1rem;
-    box-shadow: var(--shadow-lg);
     width: 100%;
-    max-width: 400px;
-    animation: fadeIn 0.5s ease-out;
+    overflow: hidden;
+    background-color: #f8fafc;
+    /* Light background for the form side */
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+/* LEFT PANEL (Branding) */
+.leftPanel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 3rem;
+    position: relative;
+    background-color: #1e293b;
+    /* Fallback color */
+    color: white;
 }
 
-.header {
-    text-align: center;
-    margin-bottom: 2rem;
+.bgImage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+    opacity: 0.6;
+    /* Adjust based on image brightness */
 }
 
-.logo {
-    width: 48px;
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(246, 190, 19, 1);
+    background: radial-gradient(circle at 0% 0%, rgba(246, 190, 19, 1), rgba(0, 0, 0, 0));
+    z-index: 1;
+}
+
+.brandingContent {
+    position: relative;
+    z-index: 10;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.brandingLogo {
+    width: auto;
     height: 48px;
-    background: var(--color-primary);
-    border-radius: 12px;
-    margin: 0 auto 1.5rem;
-}
-
-.brandLogo {
-    width: 105px;
-    height: auto;
-    margin: 0 auto 1.5rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.brandLogo img {
-    width: 100%;
-    height: auto;
     object-fit: contain;
 }
 
-.title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--color-text-main);
-    margin-bottom: 0.5rem;
+.heroText {
+    margin-top: auto;
+    margin-bottom: 4rem;
 }
 
-.subtitle {
-    color: var(--color-text-muted);
+.heroTitle {
+    font-size: 3rem;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    color: white;
+}
+
+.highlight {
+    color: #ffd800;
+    /* Yellow-400 */
+}
+
+.heroSubtitle {
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: #ffffff;
+    /* Slate-300 */
+    max-width: 80%;
+}
+
+.brandingFooter {
+    display: flex;
+    gap: 2rem;
+    margin-top: auto;
+}
+
+.footerItem {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     font-size: 0.875rem;
+    font-weight: 500;
+    color: #e2e8f0;
+}
+
+/* RIGHT PANEL (Login Form) */
+.rightPanel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    background-color: white;
+    z-index: 10;
+}
+
+.formContainer {
+    width: 100%;
+    max-width: 440px;
+    padding: 2rem;
+}
+
+.formHeader {
+    margin-bottom: 2.5rem;
+}
+
+.welcomeTitle {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #0f172a;
+    /* Slate-900 */
+    margin-bottom: 0.75rem;
+}
+
+.welcomeSubtitle {
+    color: #64748b;
+    /* Slate-500 */
+    font-size: 1rem;
+    line-height: 1.5;
 }
 
 .form {
@@ -83,51 +152,118 @@
 .inputGroup label {
     font-size: 0.875rem;
     font-weight: 500;
-    color: var(--color-text-main);
+    color: #334155;
+    /* Slate-700 */
 }
 
 .inputGroup input {
-    padding: 0.75rem 1rem;
-    border: 1px solid var(--color-border);
+    padding: 0.875rem 1rem;
+    border: 1px solid #cbd5e1;
+    /* Slate-300 */
     border-radius: 0.5rem;
     font-size: 1rem;
     transition: all 0.2s;
+    background-color: #f8fafc;
 }
 
 .inputGroup input:focus {
     outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.1);
+    border-color: #FBBF24;
+    /* Yellow-400 */
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
+    background-color: white;
+}
+
+.forgotPassword {
+    color: #F59E0B;
+    /* Yellow-500 */
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    align-self: flex-start;
+}
+
+.forgotPassword:hover {
+    text-decoration: underline;
 }
 
 .button {
-    background-color: var(--color-primary);
-    color: var(--color-secondary);
+    margin-top: 0.5rem;
+    padding: 0.875rem;
+    background-color: #F59E0B;
+    /* Yellow-500 */
+    color: white;
+    font-size: 1rem;
     font-weight: 600;
-    padding: 0.75rem;
+    border: none;
     border-radius: 0.5rem;
-    transition: all 0.2s;
+    cursor: pointer;
+    transition: background-color 0.2s;
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
 }
 
-.button:hover:not(:disabled) {
-    background-color: var(--color-primary-hover);
-    transform: translateY(-1px);
+.button:hover {
+    background-color: #D97706;
+    /* Yellow-600 */
 }
 
 .button:disabled {
-    opacity: 0.7;
+    background-color: #fbbf24;
     cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.registerLink {
+    margin-top: 2rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: #64748b;
+}
+
+.registerLink a {
+    color: #F59E0B;
+    font-weight: 600;
+    text-decoration: none;
+    margin-left: 0.25rem;
+}
+
+.registerLink a:hover {
+    text-decoration: underline;
+}
+
+.privacyFooter {
+    margin-top: 3rem;
+    display: flex;
+    gap: 0.5rem;
+    color: #94a3b8;
+    font-size: 0.75rem;
+    align-items: flex-start;
 }
 
 .error {
-    background-color: #FEF2F2;
-    color: #DC2626;
+    background-color: #fee2e2;
+    color: #ef4444;
     padding: 0.75rem;
     border-radius: 0.5rem;
     font-size: 0.875rem;
     margin-bottom: 1rem;
-    border: 1px solid #FCA5A5;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .leftPanel {
+        display: none;
+    }
+
+    .rightPanel {
+        background-color: #f8fafc;
+    }
+
+    .formContainer {
+        background-color: white;
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    }
 }

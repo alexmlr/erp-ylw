@@ -30,7 +30,7 @@ export const RequisitionsPage: React.FC = () => {
                 .from('requisitions')
                 .select(`
                     *,
-                    profile:profiles!requisitions_requester_id_fkey(full_name),
+                    profile:profiles(full_name),
                     items:requisition_items(
                         quantity,
                         product:products(name, unit)
@@ -39,18 +39,24 @@ export const RequisitionsPage: React.FC = () => {
                 .order('created_at', { ascending: false });
 
             if (activeTab === 'minhas') {
-                query = query.eq('requester_id', user?.id);
+                // Use profile.id instead of user.id to be safe/consistent with Dashboard
+                query = query.eq('requester_id', profile?.id);
             } else {
-                // 'abertas' -> All requisitions (RLS handles visibility for admins)
-                // Optionally filter by status if 'Em Aberto' implies only pending/processing
-                // For now fetching all as per "historic" requirement usually needing everything
+                // 'abertas' -> All requisitions (RLS handles visibility generally)
+                // If specific filtering for 'open' is needed, add .in('status', ['pending', 'approved', ...])
             }
 
             const { data, error } = await query;
-            if (error) throw error;
+
+            if (error) {
+                console.error('Supabase error fetching requisitions:', error);
+                throw error;
+            }
+
             setRequisitions(data || []);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error fetching requisitions:', error);
+            alert(`Erro ao carregar requisições: ${error.message || 'Erro desconhecido'}`);
         } finally {
             setLoading(false);
         }

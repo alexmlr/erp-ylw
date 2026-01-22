@@ -1,35 +1,39 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useBranding } from '../contexts/BrandingContext';
-import { Loader2, TrendingUp, Zap, BarChart3, Lock } from 'lucide-react';
-import styles from './Login.module.css';
+import { Loader2, TrendingUp, Zap, BarChart3, Lock, ArrowLeft, Mail } from 'lucide-react';
+import styles from './Login.module.css'; // Reusing Login styles
 
-export const Login: React.FC = () => {
+export const ForgotPassword: React.FC = () => {
     const { logoUrl } = useBranding();
     const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const navigate = useNavigate();
-    const location = useLocation();
-    const from = location.state?.from?.pathname || '/';
+    const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
-    const handleLogin = async (e: React.FormEvent) => {
+    const handleResetPassword = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        setError(null);
+        setMessage(null);
 
-        const { error } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-        });
+        try {
+            const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: `${window.location.origin}/reset-password`,
+            });
 
-        if (error) {
-            setError(error.message);
+            if (error) throw error;
+
+            setMessage({
+                type: 'success',
+                text: 'Se o email estiver cadastrado, você receberá um link para redefinir sua senha.'
+            });
+        } catch (error: any) {
+            setMessage({
+                type: 'error',
+                text: error.message || 'Erro ao enviar email de recuperação.'
+            });
+        } finally {
             setLoading(false);
-        } else {
-            navigate(from, { replace: true });
         }
     };
 
@@ -42,7 +46,6 @@ export const Login: React.FC = () => {
                     alt="Background"
                     className={styles.bgImage}
                     onError={(e) => {
-                        // Fallback if image doesn't exist
                         const target = e.target as HTMLImageElement;
                         target.style.display = 'none';
                     }}
@@ -99,54 +102,52 @@ export const Login: React.FC = () => {
             <div className={styles.rightPanel}>
                 <div className={styles.formContainer}>
                     <div className={styles.formHeader}>
-                        <h2 className={styles.welcomeTitle}>Bem-vindo ao ERP da Yellow</h2>
+                        <Link to="/login" className="flex items-center text-slate-500 hover:text-slate-800 mb-6 text-sm">
+                            <ArrowLeft size={16} className="mr-1" />
+                            Voltar para login
+                        </Link>
+                        <h2 className={styles.welcomeTitle}>Recuperar Senha</h2>
                         <p className={styles.welcomeSubtitle}>
-                            Monitore o inventário, faça pedidos de materiais, cotações e manutenção.
+                            Digite seu email para receber as instruções de recuperação.
                         </p>
                     </div>
 
-                    {error && <div className={styles.error}>{error}</div>}
+                    {message && (
+                        <div className={`${styles.error} ${message.type === 'success' ? 'bg-green-50 text-green-700' : ''}`}>
+                            {message.text}
+                        </div>
+                    )}
 
-                    <form onSubmit={handleLogin} className={styles.form}>
+                    <form onSubmit={handleResetPassword} className={styles.form}>
                         <div className={styles.inputGroup}>
                             <label htmlFor="email">Email</label>
-                            <input
-                                type="email"
-                                id="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder="seu.email@yellow.com.br"
-                                required
-                            />
+                            <div className="relative">
+                                <input
+                                    type="email"
+                                    id="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="seu.email@yellow.com.br"
+                                    required
+                                    style={{ width: '100%' }}
+                                />
+                            </div>
                         </div>
-
-                        <div className={styles.inputGroup}>
-                            <label htmlFor="password">Senha</label>
-                            <input
-                                type="password"
-                                id="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                placeholder="••••••••"
-                                required
-                            />
-                        </div>
-
-                        <Link to="/forgot-password" className={styles.forgotPassword}>
-                            Esqueci minha senha
-                        </Link>
 
                         <button type="submit" disabled={loading} className={styles.button}>
-                            {loading ? <Loader2 className="animate-spin" size={20} /> : 'Entrar'}
+                            {loading ? <Loader2 className="animate-spin" size={20} /> : (
+                                <>
+                                    <Mail size={18} className="mr-2" />
+                                    Enviar Link de Recuperação
+                                </>
+                            )}
                         </button>
                     </form>
-
-
 
                     <div className={styles.privacyFooter}>
                         <Lock size={14} />
                         <p>
-                            Seus dados são privados. Cada consultor acessa apenas suas próprias informações.
+                            Seus dados são privados e seguros.
                         </p>
                     </div>
                 </div>
