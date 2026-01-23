@@ -135,7 +135,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                     className={`${styles.navItem} ${isActive ? styles.active : ''}`}
                     title={!isOpen ? item.label : ''}
                 >
-                    <item.icon size={24} />
+                    <item.icon size={16} />
                     <span className={styles.navLabel}>{item.label}</span>
                     {hasChildren && isOpen && (
                         <div

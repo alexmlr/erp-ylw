@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
+import type { Requisition } from '../../types';
 import { useAuth } from '../../contexts/AuthContext';
 import { FileText, Clock, ShoppingCart, Truck } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -10,7 +11,7 @@ import { PlusCircle, Edit } from 'lucide-react';
 
 export const AdministrativeDashboard: React.FC = () => {
     const { profile } = useAuth();
-    const [recentRequisitions, setRecentRequisitions] = useState<any[]>([]);
+    const [recentRequisitions, setRecentRequisitions] = useState<any[]>([]); // simplified type for now, strictly should be extended Requisition
     const [requisitionStats, setRequisitionStats] = useState({
         pending: 0,
         approved: 0,
@@ -21,7 +22,7 @@ export const AdministrativeDashboard: React.FC = () => {
     // Modal States
     const [isNewReqModalOpen, setIsNewReqModalOpen] = useState(false);
     const [isEditSelectorOpen, setIsEditSelectorOpen] = useState(false);
-    const [editingRequisition, setEditingRequisition] = useState<any | null>(null);
+    const [editingRequisition, setEditingRequisition] = useState<Requisition | null>(null);
 
     useEffect(() => {
         fetchData();
@@ -35,8 +36,8 @@ export const AdministrativeDashboard: React.FC = () => {
                 .select('status');
 
             if (statsData) {
-                const pending = statsData.filter(r => r.status === 'pending').length;
-                const approved = statsData.filter(r => r.status === 'approved').length;
+                const pending = statsData.filter(r => r.status === 'PENDENTE').length;
+                const approved = statsData.filter(r => r.status === 'APROVADO').length;
                 setRequisitionStats({
                     pending,
                     approved,
@@ -200,10 +201,10 @@ id,
                                             {new Date(req.created_at).toLocaleDateString('pt-BR')}
                                         </td>
                                         <td className={styles.td}>
-                                            <span className={`${styles.badge} ${req.status === 'pending' ? styles.badgePending :
-                                                req.status === 'approved' ? styles.badgeApproved :
-                                                    req.status === 'delivered' ? styles.badgeDelivered :
-                                                        req.status === 'rejected' ? styles.badgeRejected : styles.badgeDefault
+                                            <span className={`${styles.badge} ${req.status === 'PENDENTE' ? styles.badgePending :
+                                                req.status === 'APROVADO' ? styles.badgeApproved :
+                                                    req.status === 'ENTREGUE' ? styles.badgeDelivered :
+                                                        req.status === 'RECUSADO' ? styles.badgeRejected : styles.badgeDefault
                                                 } `}>
                                                 {req.status}
                                             </span>

@@ -119,7 +119,7 @@ export const LogsPage: React.FC = () => {
             ];
         });
 
-        // @ts-ignore
+
         autoTable(doc, {
             head: [tableColumn],
             body: tableRows,

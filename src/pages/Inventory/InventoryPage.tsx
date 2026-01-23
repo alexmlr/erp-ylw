@@ -41,7 +41,7 @@ export const InventoryPage: React.FC = () => {
     const [recentInbound, setRecentInbound] = useState<Movement[]>([]);
     const [recentOutbound, setRecentOutbound] = useState<Movement[]>([]);
 
-    const fetchInventory = async () => {
+    const fetchInventory = React.useCallback(async () => {
         try {
             // Fetch Products with Stock
             const { data: productsData, count } = await supabase
@@ -85,11 +85,11 @@ export const InventoryPage: React.FC = () => {
             console.error('Error fetching inventory:', error);
             // alert('Erro ao carregar inventário: ' + (error.message || 'Erro desconhecido'));
         }
-    };
+    }, [page, itemsPerPage, sortColumn, sortDirection]);
 
     useEffect(() => {
         fetchInventory();
-    }, [page, itemsPerPage, sortColumn, sortDirection]);
+    }, [fetchInventory]);
 
     const handleSort = (column: string) => {
         if (sortColumn === column) {

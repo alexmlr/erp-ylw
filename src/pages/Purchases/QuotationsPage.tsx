@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search } from 'lucide-react';
+import { Plus, Search, Eye, Trash2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { quotationService } from '../../services/quotationService';
 import type { Quotation } from '../../types';
@@ -89,19 +89,19 @@ export const QuotationsPage: React.FC = () => {
             </div>
 
             <div className={styles.grid}>
-                <div className={styles.stockCard} style={{ gridColumn: '1 / -1' }}>
-                    <div className={styles.tableResponsive}>
-                        <table className={styles.table}>
-                            <thead>
+                <div className={styles.stockCard} style={{ gridColumn: '1 / -1', padding: 0, overflow: 'hidden' }}>
+                    <div className={styles.modernTableContainer} style={{ borderRadius: 0, border: 'none', boxShadow: 'none' }}>
+                        <table className={styles.modernTable}>
+                            <thead className={styles.modernHeader}>
                                 <tr>
                                     <th>Cotação #</th>
                                     <th>Data</th>
                                     <th>Solicitante</th>
                                     <th>Status</th>
-                                    <th>Ações</th>
+                                    <th style={{ textAlign: 'right' }}>Ações</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody className="bg-white">
                                 {loading ? (
                                     <tr>
                                         <td colSpan={5} className="text-center py-8">Carregando cotações...</td>
@@ -112,18 +112,29 @@ export const QuotationsPage: React.FC = () => {
                                     </tr>
                                 ) : (
                                     filteredQuotations.map(quote => (
-                                        <tr key={quote.id}>
-                                            <td className="font-medium">#{String(quote.display_id).padStart(6, '0')}</td>
-                                            <td>{new Date(quote.created_at).toLocaleDateString()}</td>
-                                            <td>{quote.created_by_user?.full_name || 'Desconhecido'}</td>
-                                            <td>{getStatusBadge(quote.status)}</td>
-                                            <td>
-                                                <div className="flex items-center gap-3">
+                                        <tr key={quote.id} className={styles.modernRow}>
+                                            <td className={styles.modernCell}>
+                                                <span style={{ fontWeight: 500 }}>
+                                                    #{String(quote.display_id).padStart(6, '0')}
+                                                </span>
+                                            </td>
+                                            <td className={styles.modernCellSecondary}>
+                                                {new Date(quote.created_at).toLocaleDateString()}
+                                            </td>
+                                            <td className={styles.modernCell}>
+                                                {quote.created_by_user?.full_name || 'Desconhecido'}
+                                            </td>
+                                            <td className={styles.modernCell}>
+                                                {getStatusBadge(quote.status)}
+                                            </td>
+                                            <td className={styles.modernCell} style={{ textAlign: 'right' }}>
+                                                <div className="flex items-center justify-end gap-2">
                                                     <Link
                                                         to={`/purchases/quotations/${quote.id}`}
-                                                        className="text-blue-600 hover:text-blue-800 font-medium hover:underline"
+                                                        className={styles.actionButton}
+                                                        title="Abrir Cotação"
                                                     >
-                                                        Abrir
+                                                        <Eye size={20} />
                                                     </Link>
                                                     {(profile?.role === 'admin' || profile?.role === 'manager') && (
                                                         <button
@@ -138,9 +149,10 @@ export const QuotationsPage: React.FC = () => {
                                                                     }
                                                                 }
                                                             }}
-                                                            className="text-red-500 hover:text-red-700 text-sm font-medium"
+                                                            className={`${styles.actionButton} hover:text-red-600`}
+                                                            title="Excluir Cotação"
                                                         >
-                                                            Excluir
+                                                            <Trash2 size={20} />
                                                         </button>
                                                     )}
                                                 </div>

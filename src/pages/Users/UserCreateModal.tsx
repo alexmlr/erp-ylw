@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { X, Save, Loader2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import type { Unit } from '../../types';
 import styles from './UserCreateModal.module.css';
 import { loggerService } from '../../services/loggerService';
 
@@ -17,7 +18,7 @@ export const UserCreateModal: React.FC<UserCreateModalProps> = ({ isOpen, onClos
     const [password, setPassword] = useState('');
     const [role, setRole] = useState('user');
     const [unitId, setUnitId] = useState('');
-    const [units, setUnits] = useState<any[]>([]); // Using any for simplicity here, ideally Unit[]
+    const [units, setUnits] = useState<Unit[]>([]); // Using any for simplicity here, ideally Unit[]
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -115,9 +116,10 @@ export const UserCreateModal: React.FC<UserCreateModalProps> = ({ isOpen, onClos
             setRole('user');
             setUnitId('');
 
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('Error creating user:', err);
-            setError(err.message || 'Erro ao criar usuário.');
+            const errorMessage = err instanceof Error ? err.message : 'Erro ao criar usuário.';
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }

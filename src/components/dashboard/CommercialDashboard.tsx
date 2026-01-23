@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
+import type { Requisition } from '../../types';
 import { useAuth } from '../../contexts/AuthContext';
 import { FileText, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -10,7 +11,7 @@ import { PlusCircle, Edit } from 'lucide-react';
 
 export const CommercialDashboard: React.FC = () => {
     const { profile } = useAuth();
-    const [recentRequisitions, setRecentRequisitions] = useState<any[]>([]);
+    const [recentRequisitions, setRecentRequisitions] = useState<any[]>([]); // simplified type for now
     const [stats, setStats] = useState({
         pending: 0,
         approved: 0,
@@ -21,7 +22,7 @@ export const CommercialDashboard: React.FC = () => {
     // Modal States
     const [isNewReqModalOpen, setIsNewReqModalOpen] = useState(false);
     const [isEditSelectorOpen, setIsEditSelectorOpen] = useState(false);
-    const [editingRequisition, setEditingRequisition] = useState<any | null>(null);
+    const [editingRequisition, setEditingRequisition] = useState<Requisition | null>(null);
 
     useEffect(() => {
         if (profile?.id) {
@@ -38,8 +39,8 @@ export const CommercialDashboard: React.FC = () => {
                 .eq('requester_id', profile?.id);
 
             if (statsData) {
-                const pending = statsData.filter(r => r.status === 'pending').length;
-                const approved = statsData.filter(r => r.status === 'approved').length;
+                const pending = statsData.filter(r => r.status === 'PENDENTE').length;
+                const approved = statsData.filter(r => r.status === 'APROVADO').length;
                 setStats({
                     pending,
                     approved,
@@ -168,12 +169,12 @@ export const CommercialDashboard: React.FC = () => {
                                     </td>
                                     <td className={styles.td}>
                                         <span className={`${styles.badge} ${req.status === 'pending' ? styles.badgePending :
-                                            req.status === 'approved' ? styles.badgeApproved :
-                                                req.status === 'rejected' ? styles.badgeRejected : styles.badgeDefault
+                                            req.status === 'APROVADO' ? styles.badgeApproved :
+                                                req.status === 'RECUSADO' ? styles.badgeRejected : styles.badgeDefault
                                             }`}>
-                                            {req.status === 'pending' ? 'Pendente' :
-                                                req.status === 'approved' ? 'Aprovado' :
-                                                    req.status === 'rejected' ? 'Rejeitado' : req.status}
+                                            {req.status === 'PENDENTE' ? 'Pendente' :
+                                                req.status === 'APROVADO' ? 'Aprovado' :
+                                                    req.status === 'RECUSADO' ? 'Rejeitado' : req.status}
                                         </span>
                                     </td>
                                 </tr>

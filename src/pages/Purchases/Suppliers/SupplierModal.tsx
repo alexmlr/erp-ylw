@@ -103,7 +103,7 @@ export const SupplierModal: React.FC<SupplierModalProps> = ({ isOpen, onClose, o
                     details: { name: updated.name }
                 });
             } else {
-                const created = await supplierService.createSupplier(formData as any);
+                const created = await supplierService.createSupplier(formData as Supplier);
                 // Log Create
                 await loggerService.logAction({
                     action: 'Criou Fornecedor',

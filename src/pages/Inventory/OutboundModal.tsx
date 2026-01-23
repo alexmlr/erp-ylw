@@ -15,7 +15,7 @@ interface OutboundItem {
     product_id: string;
     product_name: string;
     quantity: number;
-    current_stock: number;
+    available_quantity: number;
 }
 
 export const OutboundModal: React.FC<OutboundModalProps> = ({ isOpen, onClose, onSuccess }) => {
@@ -78,7 +78,7 @@ export const OutboundModal: React.FC<OutboundModalProps> = ({ isOpen, onClose, o
                 product_id: prod.id,
                 product_name: prod.name,
                 quantity,
-                current_stock: prod.quantity
+                available_quantity: prod.quantity
             }]);
         }
 

@@ -1,18 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { X, Calendar, User, Package } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import type { Requisition } from '../../types';
 import { useAuth } from '../../contexts/AuthContext';
 import styles from './Dashboard.module.css';
 
 interface PendingRequisitionSelectorProps {
     isOpen: boolean;
     onClose: () => void;
-    onSelect: (requisition: any) => void;
+    onSelect: (requisition: Requisition) => void;
+}
+
+interface PendingRequisition extends Omit<Requisition, 'items'> {
+    requisition_items: { count: number }[];
+    profiles: { full_name: string } | { full_name: string }[] | null;
 }
 
 export const PendingRequisitionSelector: React.FC<PendingRequisitionSelectorProps> = ({ isOpen, onClose, onSelect }) => {
     const { profile } = useAuth();
-    const [requisitions, setRequisitions] = useState<any[]>([]);
+    const [requisitions, setRequisitions] = useState<PendingRequisition[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -83,7 +89,7 @@ export const PendingRequisitionSelector: React.FC<PendingRequisitionSelectorProp
                                 <button
                                     key={req.id}
                                     className={styles.reqItemButton}
-                                    onClick={() => onSelect(req)}
+                                    onClick={() => onSelect(req as unknown as Requisition)}
                                 >
                                     <div className="flex flex-col items-start gap-1">
                                         <span className="font-semibold text-lg">
@@ -103,7 +109,7 @@ export const PendingRequisitionSelector: React.FC<PendingRequisitionSelectorProp
                                         {profile?.role !== 'commercial' && (
                                             <span className="text-xs text-gray-400 flex items-center gap-1">
                                                 <User size={12} />
-                                                {req.profiles?.full_name || 'Usuário'}
+                                                {(Array.isArray(req.profiles) ? req.profiles[0]?.full_name : req.profiles?.full_name) || 'Usuário'}
                                             </span>
                                         )}
                                     </div>

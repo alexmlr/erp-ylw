@@ -11,11 +11,6 @@ export const InventoryMovementsPage: React.FC = () => {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
 
-
-    useEffect(() => {
-        fetchMovements();
-    }, [page, typeFilter]);
-
     const fetchMovements = async () => {
         try {
             let query = supabase
@@ -37,6 +32,12 @@ export const InventoryMovementsPage: React.FC = () => {
             // alert('Erro ao carregar histórico: ' + (error.message || 'Erro desconhecido'));
         }
     };
+
+    useEffect(() => {
+        fetchMovements();
+    }, [page, typeFilter]);
+
+
 
     return (
         <div className={styles.container}>

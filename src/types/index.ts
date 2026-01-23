@@ -27,12 +27,15 @@ export interface User {
 
 export interface Requisition {
     id: string;
-    user_id: string;
-    status: 'pending' | 'approved' | 'rejected' | 'delivered';
-    items: any[]; // Define Item type if available or keep any
+    requester_id: string; // Matches DB column
+    user_id?: string; // Optional alias if needed, or remove? Keeping for compatibility if used elsewhere.
+    display_id: number;
+    status: 'PENDENTE' | 'APROVADO' | 'RECUSADO' | 'ENTREGUE' | 'EM_SEPARACAO';
+    items: Record<string, unknown>[];
     unit_id?: string | null;
     unit?: Unit;
     created_at: string;
+    profile?: { full_name: string | null }; // Added for joins
 }
 
 export interface Supplier {
@@ -62,8 +65,8 @@ export interface Product {
     name: string;
     description?: string | null;
     unit: string;
-    min_stock?: number;
-    current_stock: number;
+    min_quantity?: number;
+    quantity: number;
     category?: string;
     image_url?: string | null;
     created_at: string;

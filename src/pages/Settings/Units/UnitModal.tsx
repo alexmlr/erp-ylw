@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { X, Save, Search } from 'lucide-react';
 import { supabase } from '../../../lib/supabase';
 import styles from './Units.module.css';
+import type { Unit } from '../../../types';
 import { loggerService } from '../../../services/loggerService';
 
 interface UnitModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSave: () => void;
-    unit?: any | null; // Using any for now, better to import Unit from types
+    unit?: Unit | null; // Using any for now, better to import Unit from types
 }
 
 export const UnitModal: React.FC<UnitModalProps> = ({ isOpen, onClose, onSave, unit }) => {

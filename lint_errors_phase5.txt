@@ -1,0 +1,172 @@
+
+> erp-yellow@0.0.0 lint
+> eslint .
+
+
+/Users/alexandre/Documents/Programação/App - ERP Yellow/src/components/dashboard/AdministrativeDashboard.tsx
+  14:66  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/alexandre/Documents/Programação/App - ERP Yellow/src/components/dashboard/CommercialDashboard.tsx
+  14:66  error    Unexpected any. Specify a different type                                                                      @typescript-eslint/no-explicit-any
+  31:8   warning  React Hook useEffect has a missing dependency: 'fetchData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/alexandre/Documents/Programação/App - ERP Yellow/src/components/dashboard/PendingRequisitionSelector.tsx
+  16:54  error    Unexpected any. Specify a different type                                                                                     @typescript-eslint/no-explicit-any
+  23:8   warning  React Hook useEffect has a missing dependency: 'fetchPendingRequisitions'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/alexandre/Documents/Programação/App - ERP Yellow/src/components/layout/Header.tsx
+  26:50  error  Compilation Skipped: Existing memoization could not be preserved
+
+React Compiler has skipped optimizing this component because the existing manual memoization could not be preserved. The inferred dependencies did not match the manually specified dependencies, which could cause the value to change more or less frequently than expected. The inferred dependency was `profile`, but the source dependencies were [profile?.id]. Inferred less specific property than source.
+
+/Users/alexandre/Documents/Programação/App - ERP Yellow/src/components/layout/Header.tsx:26:50
+  24 |     const notifDropdownRef = useRef<HTMLDivElement>(null);
+  25 |
+> 26 |     const fetchNotifications = React.useCallback(async () => {
+     |                                                  ^^^^^^^^^^^^^
+> 27 |         if (profile?.id) {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 28 |             try {
+     …
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 36 |         }
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 37 |     }, [profile?.id]);
+     | ^^^^^^ Could not preserve existing manual memoization
+  38 |
+  39 |     useEffect(() => {
+  40 |         fetchNotifications();  react-hooks/preserve-manual-memoization
+  40:9   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/alexandre/Documents/Programação/App - ERP Yellow/src/components/layout/Header.tsx:40:9
+  38 |
+  39 |     useEffect(() => {
+> 40 |         fetchNotifications();
+     |         ^^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  41 |         // Poll every 60 seconds
+  42 |         const interval = setInterval(fetchNotifications, 60000);
+  43 |         return () => clearInterval(interval);                     react-hooks/set-state-in-effect
+
+/Users/alexandre/Documents/Programação/App - ERP Yellow/src/components/layout/Sidebar.tsx
+  15:11  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/alexandre/Documents/Programação/App - ERP Yellow/src/contexts/AuthContext.tsx
+  45:8   warning  React Hook useEffect has a missing dependency: 'fetchProfile'. Either include it or remove the dependency array                 react-hooks/exhaustive-deps
+  85:14  error    Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/alexandre/Documents/Programação/App - ERP Yellow/src/contexts/BrandingContext.tsx
+  16:14  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/alexandre/Documents/Programação/App - ERP Yellow/src/pages/ForgotPassword.tsx
+  30:25  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/alexandre/Documents/Programação/App - ERP Yellow/src/pages/Inventory/InboundModal.tsx
+  22:46  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/alexandre/Documents/Programação/App - ERP Yellow/src/pages/Inventory/InventoryMovementsPage.tsx
+  10:48  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  30:25  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  37:9   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/alexandre/Documents/Programação/App - ERP Yellow/src/pages/Inventory/InventoryMovementsPage.tsx:37:9
+  35 |
+  36 |     useEffect(() => {
+> 37 |         fetchMovements();
+     |         ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  38 |     }, [page, typeFilter]);
+  39 |
+  40 |  react-hooks/set-state-in-effect
+  38:8   warning  React Hook useEffect has a missing dependency: 'fetchMovements'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        react-hooks/exhaustive-deps
+
+/Users/alexandre/Documents/Programação/App - ERP Yellow/src/pages/Inventory/InventoryPage.tsx
+  72:40  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-explicit-any
+  81:42  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-explicit-any
+  91:9   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/alexandre/Documents/Programação/App - ERP Yellow/src/pages/Inventory/InventoryPage.tsx:91:9
+  89 |
+  90 |     useEffect(() => {
+> 91 |         fetchInventory();
+     |         ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  92 |     }, [fetchInventory]);
+  93 |
+  94 |     const handleSort = (column: string) => {  react-hooks/set-state-in-effect
+
+/Users/alexandre/Documents/Programação/App - ERP Yellow/src/pages/Inventory/OutboundModal.tsx
+   23:46  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   24:40  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  150:25  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/alexandre/Documents/Programação/App - ERP Yellow/src/pages/Inventory/ProductDetailsPage.tsx
+  48:8   warning  React Hook useEffect has a missing dependency: 'fetchData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  81:37  error    Unexpected any. Specify a different type                                                                      @typescript-eslint/no-explicit-any
+
+/Users/alexandre/Documents/Programação/App - ERP Yellow/src/pages/Inventory/RequisitionFormModal.tsx
+   74:8   warning  React Hook useEffect has a missing dependency: 'loadRequisitionDetails'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  120:49  error    Unexpected any. Specify a different type                                                                                   @typescript-eslint/no-explicit-any
+
+/Users/alexandre/Documents/Programação/App - ERP Yellow/src/pages/Inventory/RequisitionsPage.tsx
+  25:8   warning  React Hook useEffect has a missing dependency: 'fetchRequisitions'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  77:40  error    Unexpected any. Specify a different type                                                                              @typescript-eslint/no-explicit-any
+
+/Users/alexandre/Documents/Programação/App - ERP Yellow/src/pages/Logs/LogsPage.tsx
+   16:14  error    Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+   35:40  error    Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+   36:40  error    Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+   44:8   warning  React Hook useEffect has a missing dependency: 'fetchLogs'. Either include it or remove the dependency array         react-hooks/exhaustive-deps
+  103:56  error    Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+  122:9   error    Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+  316:48  error    Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+  334:37  error    Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+  380:52  error    Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+
+/Users/alexandre/Documents/Programação/App - ERP Yellow/src/pages/Purchases/QuotationForm.tsx
+   31:27   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/alexandre/Documents/Programação/App - ERP Yellow/src/pages/Purchases/QuotationForm.tsx:31:27
+  29 |         if (value) {
+  30 |             const selected = products.find(p => p.id === value);
+> 31 |             if (selected) setSearchTerm(selected.name);
+     |                           ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  32 |         } else {
+  33 |             setSearchTerm('');
+  34 |         }  react-hooks/set-state-in-effect
+  144:8    warning  React Hook useEffect has a missing dependency: 'loadQuotation'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              react-hooks/exhaustive-deps
+  171:55   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-explicit-any
+  222:62   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-explicit-any
+  228:87   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-explicit-any
+  249:14   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-explicit-any
+  282:90   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-explicit-any
+  286:86   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-explicit-any
+  380:23   error    '_' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+  550:126  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-explicit-any
+
+/Users/alexandre/Documents/Programação/App - ERP Yellow/src/pages/Purchases/Suppliers/SupplierDetailsPage.tsx
+  35:8  warning  React Hook useEffect has a missing dependency: 'loadSupplier'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+✖ 49 problems (39 errors, 10 warnings)
+

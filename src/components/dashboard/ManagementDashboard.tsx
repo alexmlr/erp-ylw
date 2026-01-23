@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { FileText, AlertTriangle, TrendingUp, Users } from 'lucide-react';
+import type { Product } from '../../types';
 import { Link } from 'react-router-dom';
 import styles from './Dashboard.module.css';
 
@@ -11,7 +12,7 @@ export const ManagementDashboard: React.FC = () => {
         activeUsers: 0,
         pendingRequisitions: 0
     });
-    const [lowStockProducts, setLowStockProducts] = useState<any[]>([]);
+    const [lowStockProducts, setLowStockProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -23,11 +24,11 @@ export const ManagementDashboard: React.FC = () => {
             // 1. Fetch Products Stats & Low Stack
             const { data: allProducts } = await supabase
                 .from('products')
-                .select('id, name, quantity, min_quantity, unit');
+                .select('id, name, quantity, min_quantity, unit, created_at');
 
             let totalProds = 0;
             let low = 0;
-            const criticalProducts: any[] = [];
+            const criticalProducts: Product[] = [];
 
             if (allProducts) {
                 totalProds = allProducts.length;
@@ -49,7 +50,7 @@ export const ManagementDashboard: React.FC = () => {
             const { count: pendingCount } = await supabase
                 .from('requisitions')
                 .select('*', { count: 'exact', head: true })
-                .eq('status', 'pending');
+                .eq('status', 'PENDENTE');
 
             setStats({
                 totalProducts: totalProds,

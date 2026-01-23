@@ -97,7 +97,7 @@ const ProductCombobox: React.FC<ProductComboboxProps> = ({ products, value, onCh
                                 >
                                     <span>{product.name}</span>
                                     <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>
-                                        Est: {product.current_stock} {product.unit}
+                                        Est: {product.quantity} {product.unit}
                                     </span>
                                 </li>
                             );
@@ -156,7 +156,7 @@ export const QuotationForm: React.FC = () => {
             if (prods) {
                 const mappedProducts = prods.map(p => ({
                     ...p,
-                    current_stock: p.quantity // Map DB 'quantity' to Type 'current_stock'
+                    quantity: p.quantity // Map DB 'quantity' to Type 'quantity'
                 })).sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
                 setAvailableProducts(mappedProducts as Product[]);
             }
@@ -168,7 +168,7 @@ export const QuotationForm: React.FC = () => {
                 .order('name');
 
             if (suppError) console.error('Error fetching suppliers:', suppError);
-            if (supps) setAvailableSuppliers(supps as any[]);
+            if (supps) setAvailableSuppliers(supps as Supplier[]);
 
         } catch (err) {
             console.error('Error loading catalogs:', err);
@@ -246,7 +246,7 @@ export const QuotationForm: React.FC = () => {
             supplier_id: '',
             unit_price: 0,
             is_negotiation_requested: false
-        } as any);
+        } as QuotationProductPrice);
 
         newItems[itemIndex].prices = prices;
         setItems(newItems);
@@ -283,7 +283,7 @@ export const QuotationForm: React.FC = () => {
                 await loadQuotation(id); // Reload to get fresh IDs
             } else {
                 // Create
-                const newQt = await quotationService.createQuotation(payloadItems as any, user.id);
+                const newQt = await quotationService.createQuotation(payloadItems, user.id);
                 navigate(`/purchases/quotations/${newQt.id}`);
             }
 
@@ -547,7 +547,7 @@ export const QuotationForm: React.FC = () => {
                                 <h4 className={styles.pricesTitle}>Fornecedores & Preços</h4>
                                 <div className={styles.pricesGrid}>
                                     {item.prices?.map((price, pIndex) => {
-                                        const isBestPrice = !isEditing && price.unit_price === getLowestPrice(item.prices as any);
+                                        const isBestPrice = !isEditing && price.unit_price === getLowestPrice(item.prices as QuotationProductPrice[]);
                                         const cardClass = `${styles.priceCard} ${isBestPrice ? styles.bestPrice : ''} ${price.is_negotiation_requested ? styles.negotiation : ''}`;
 
                                         return (

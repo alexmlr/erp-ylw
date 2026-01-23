@@ -5,12 +5,7 @@ import { UnitModal } from './UnitModal';
 import styles from './Units.module.css';
 import { loggerService } from '../../../services/loggerService';
 
-interface Unit {
-    id: string;
-    name: string;
-    address: string | null;
-    active: boolean;
-}
+import type { Unit } from '../../../types';
 
 export const UnitsPage: React.FC = () => {
     const [units, setUnits] = useState<Unit[]>([]);

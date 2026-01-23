@@ -4,7 +4,7 @@ export interface LogEntry {
     action: string;
     entity: string;
     entity_id?: string;
-    details?: any;
+    details?: Record<string, unknown>;
 }
 
 export const loggerService = {

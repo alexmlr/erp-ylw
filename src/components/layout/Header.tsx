@@ -23,7 +23,7 @@ export const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
     const [notifDropdownOpen, setNotifDropdownOpen] = useState(false);
     const notifDropdownRef = useRef<HTMLDivElement>(null);
 
-    const fetchNotifications = async () => {
+    const fetchNotifications = React.useCallback(async () => {
         if (profile?.id) {
             try {
                 const data = await notificationService.getNotifications(profile.id);
@@ -34,14 +34,14 @@ export const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                 console.error('Error fetching notifications:', error);
             }
         }
-    };
+    }, [profile?.id]);
 
     useEffect(() => {
         fetchNotifications();
         // Poll every 60 seconds
         const interval = setInterval(fetchNotifications, 60000);
         return () => clearInterval(interval);
-    }, [profile?.id]);
+    }, [fetchNotifications]);
 
     const handleNotificationClick = async (notification: Notification) => {
         if (!notification.is_read) {
@@ -168,7 +168,19 @@ export const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                     <div className={`${styles.userDropdown} ${dropdownOpen ? styles.show : ''}`}>
                         <div className={styles.userHeader}>
                             <p className={styles.userName}>{profile?.full_name}</p>
-                            <p className={styles.userRole}>{profile?.role}</p>
+                            <p className={styles.userRole}>
+                                {(() => {
+                                    const role = profile?.role || '';
+                                    const translations: Record<string, string> = {
+                                        'admin': 'Administrador',
+                                        'manager': 'Gestão',
+                                        'administrative': 'Administrativo',
+                                        'commercial': 'Comercial',
+                                        'user': 'Usuário'
+                                    };
+                                    return translations[role] || role;
+                                })()}
+                            </p>
                         </div>
                         <NavLink to="/profile" className={styles.dropdownItem} onClick={() => setDropdownOpen(false)}>
                             <User size={16} /> Perfil

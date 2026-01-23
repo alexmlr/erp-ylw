@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Save, Loader2, Camera, User, Lock } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import type { Profile } from '../../types';
+import type { Profile, Unit } from '../../types';
 import styles from './UserEditModal.module.css';
 import { loggerService } from '../../services/loggerService';
 import { useAuth } from '../../contexts/AuthContext';
@@ -33,7 +33,7 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({ isOpen, onClose, u
     const [password, setPassword] = useState('');
 
     // Units for selection
-    const [units, setUnits] = useState<any[]>([]);
+    const [units, setUnits] = useState<Unit[]>([]);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -97,7 +97,7 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({ isOpen, onClose, u
                 .getPublicUrl(filePath);
 
             setAvatarUrl(publicUrl);
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('Error uploading avatar:', err);
             setError('Erro ao fazer upload da imagem.');
         } finally {
@@ -156,9 +156,10 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({ isOpen, onClose, u
 
             onUpdate();
             onClose();
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('Error updating user:', err);
-            setError('Erro ao atualizar usuário: ' + err.message);
+            const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+            setError('Erro ao atualizar usuário: ' + errorMessage);
         } finally {
             setLoading(false);
         }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import type { Requisition } from '../../types';
 import { useAuth } from '../../contexts/AuthContext';
 import { RequisitionFormModal } from './RequisitionFormModal';
 import styles from './Inventory.module.css';
@@ -8,12 +9,12 @@ import styles from './Inventory.module.css';
 export const RequisitionsPage: React.FC = () => {
     const { profile, user } = useAuth();
     const [activeTab, setActiveTab] = useState<'minhas' | 'abertas'>('minhas');
-    const [requisitions, setRequisitions] = useState<any[]>([]);
+    const [requisitions, setRequisitions] = useState<Requisition[]>([]);
     const [loading, setLoading] = useState(true);
 
     // Modal State
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedRequisition, setSelectedRequisition] = useState<any | null>(null);
+    const [selectedRequisition, setSelectedRequisition] = useState<Requisition | null>(null);
 
     const isAdminOrManager = ['admin', 'manager', 'administrative'].includes(profile?.role || '');
 
@@ -54,9 +55,10 @@ export const RequisitionsPage: React.FC = () => {
             }
 
             setRequisitions(data || []);
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Error fetching requisitions:', error);
-            alert(`Erro ao carregar requisições: ${error.message || 'Erro desconhecido'}`);
+            const errorMessage = (error as Error).message || 'Erro desconhecido';
+            alert(`Erro ao carregar requisições: ${errorMessage}`);
         } finally {
             setLoading(false);
         }
@@ -67,12 +69,12 @@ export const RequisitionsPage: React.FC = () => {
         setIsModalOpen(true);
     };
 
-    const handleEdit = (req: any) => {
+    const handleEdit = (req: Requisition) => {
         setSelectedRequisition(req);
         setIsModalOpen(true);
     };
 
-    const formatItemsSummary = (items: any[]) => {
+    const formatItemsSummary = (items: any[]) => { // TODO: Type this properly if possible, or leave as any[] if structure is dynamic
         if (!items || items.length === 0) return '-';
         const summary = items.map(i => `${i.quantity}x ${i.product?.name}`).join(', ');
         return summary.length > 50 ? summary.substring(0, 50) + '...' : summary;
@@ -127,56 +129,89 @@ export const RequisitionsPage: React.FC = () => {
                     <p>Nenhuma requisição encontrada.</p>
                 </div>
             ) : (
-                <div className="bg-white rounded-lg shadowoverflow-hidden border border-gray-200">
-                    <table className="w-full">
-                        <thead className="bg-gray-50">
+                <div className={styles.modernTableContainer}>
+                    <table className={styles.modernTable}>
+                        <thead className={styles.modernHeader}>
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
-                                {activeTab === 'abertas' && (
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solicitante</th>
-                                )}
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Itens</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                                <th>ID</th>
+                                <th>Data</th>
+                                {
+                                    activeTab === 'abertas' && (
+                                        <th>Solicitante</th>
+                                    )
+                                }
+                                <th>Itens</th>
+                                <th>Status</th>
+                                <th style={{ textAlign: 'right' }}>Ações</th>
                             </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
+                        <tbody className="bg-white">
                             {requisitions.map((req) => (
-                                <tr key={req.id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        #{req.display_id?.toString().padStart(5, '0') || '...'}
+                                <tr key={req.id} className={styles.modernRow}>
+                                    <td className={styles.modernCell}>
+                                        <span style={{ fontWeight: 500 }}>
+                                            #{req.display_id?.toString().padStart(5, '0') || '...'}
+                                        </span>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <td className={styles.modernCellSecondary}>
                                         {formatDate(req.created_at)}
                                     </td>
                                     {activeTab === 'abertas' && (
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {req.profile?.full_name || 'Desconhecido'}
+                                        <td className={styles.modernCell}>
+                                            <span style={{ fontWeight: 500 }}>
+                                                {req.profile?.full_name || 'Desconhecido'}
+                                            </span>
                                         </td>
                                     )}
-                                    <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" title={formatItemsSummary(req.items)}>
+                                    <td className={styles.modernCellSecondary} title={formatItemsSummary(req.items)} style={{ maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                         {formatItemsSummary(req.items)}
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
+                                    <td className={styles.modernCell}>
                                         <span className={`${styles.statusBadge} ${styles[`status_${req.status}`]}`}>
                                             {req.status.replace('_', ' ')}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <button
-                                            onClick={() => handleEdit(req)}
-                                            className="text-yellow-600 hover:text-yellow-900"
-                                        >
-                                            {(activeTab === 'minhas' && req.status !== 'PENDENTE') ? 'Ver Detalhes' : 'Abrir / Editar'}
-                                        </button>
+                                    <td className={styles.modernCell} style={{ textAlign: 'right' }}>
+                                        <div className="flex items-center justify-end gap-2">
+                                            <button
+                                                onClick={() => handleEdit(req)}
+                                                className={styles.actionButton}
+                                                title="Ver Detalhes / Editar"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                                </svg>
+                                            </button>
+                                            {profile?.role === 'admin' && (
+                                                <button
+                                                    onClick={async () => {
+                                                        if (confirm(`Tem certeza que deseja excluir a requisição #${req.display_id}? Esta ação é irreversível.`)) {
+                                                            try {
+                                                                const { error } = await supabase.from('requisitions').delete().eq('id', req.id);
+                                                                if (error) throw error;
+                                                                fetchRequisitions();
+                                                            } catch (err: unknown) {
+                                                                console.error("Error deleting requisition:", err);
+                                                                const errorMessage = (err as Error).message || 'Erro desconhecido';
+                                                                alert("Erro ao excluir requisição: " + errorMessage);
+                                                            }
+                                                        }
+                                                    }}
+                                                    className={`${styles.actionButton} hover:text-red-500`}
+                                                    title="Excluir (Admin)"
+                                                >
+                                                    <Trash2 size={20} />
+                                                </button>
+                                            )}
+                                        </div>
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
                 </div>
-            )}
+            )
+            }
 
             <RequisitionFormModal
                 isOpen={isModalOpen}
@@ -186,6 +221,6 @@ export const RequisitionsPage: React.FC = () => {
                 }}
                 requisitionToEdit={selectedRequisition}
             />
-        </div>
+        </div >
     );
 };

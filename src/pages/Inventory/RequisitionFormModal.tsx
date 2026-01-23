@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Trash2, Loader2, Search, Image as ImageIcon } from 'lucide-react';
+import type { Requisition, Unit } from '../../types';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { notificationService } from '../../services/notificationService';
@@ -26,7 +27,7 @@ interface RequisitionFormModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSave: () => void;
-    requisitionToEdit?: any | null;
+    requisitionToEdit?: Requisition | null;
 }
 
 const STATUS_OPTIONS = [
@@ -46,7 +47,7 @@ export const RequisitionFormModal: React.FC<RequisitionFormModalProps> = ({ isOp
     const [items, setItems] = useState<RequisitionItem[]>([]);
     const [status, setStatus] = useState('PENDENTE');
     const [unitId, setUnitId] = useState('');
-    const [units, setUnits] = useState<any[]>([]);
+    const [units, setUnits] = useState<Unit[]>([]);
 
     // New Item State
     const [selectedProduct, setSelectedProduct] = useState('');
@@ -76,7 +77,7 @@ export const RequisitionFormModal: React.FC<RequisitionFormModalProps> = ({ isOp
         try {
             const { data, error } = await supabase
                 .from('units')
-                .select('id, name')
+                .select('*')
                 .eq('active', true)
                 .order('name');
             if (error) throw error;
@@ -116,7 +117,7 @@ export const RequisitionFormModal: React.FC<RequisitionFormModalProps> = ({ isOp
 
             if (error) throw error;
 
-            const loadedItems = data.map((item: any) => ({
+            const loadedItems = data.map((item: any) => ({ // Keeping item: any for joined result for now or type it if easy
                 product_id: item.product.id,
                 quantity: item.quantity,
                 authorized_quantity: item.authorized_quantity,
@@ -403,9 +404,10 @@ export const RequisitionFormModal: React.FC<RequisitionFormModalProps> = ({ isOp
 
             onSave();
             onClose();
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Error saving requisition:', error);
-            alert(`Erro ao salvar requisição: ${error.message}`);
+            const errorMessage = (error as Error).message || 'Erro desconhecido';
+            alert(`Erro ao salvar requisição: ${errorMessage}`);
         } finally {
             setLoading(false);
         }
@@ -462,7 +464,7 @@ export const RequisitionFormModal: React.FC<RequisitionFormModalProps> = ({ isOp
                             disabled={!['admin', 'manager'].includes(profile?.role || '') && !!profile?.unit_id}
                         >
                             <option value="">Selecione a Unidade</option>
-                            {units.map((u: any) => (
+                            {units.map((u) => (
                                 <option key={u.id} value={u.id}>{u.name}</option>
                             ))}
                         </select>

@@ -62,9 +62,10 @@ export const SettingsPage: React.FC = () => {
             // 4. Refresh Context
             await refreshLogo();
             alert('Logo atualizada com sucesso!');
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Error uploading logo:', error);
-            alert('Erro ao atualizar logo: ' + error.message);
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            alert('Erro ao atualizar logo: ' + errorMessage);
         } finally {
             setUploading(false);
             if (fileInputRef.current) {

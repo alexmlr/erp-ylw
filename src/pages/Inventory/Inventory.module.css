@@ -658,3 +658,76 @@
     font-size: 0.75rem;
     font-weight: 600;
 }
+
+/* Modern Table Styles */
+.modernTableContainer {
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    border: 1px solid #E5E7EB;
+    overflow: hidden;
+}
+
+.modernTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.modernHeader {
+    background-color: #F9FAFB;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.modernHeader th {
+    padding: 1rem 1.5rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #4B5563;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.modernRow {
+    border-bottom: 1px solid #F3F4F6;
+    transition: background-color 0.15s ease-in-out;
+}
+
+.modernRow:last-child {
+    border-bottom: none;
+}
+
+.modernRow:hover {
+    background-color: #FEFCE8;
+    /* Soft yellow hover */
+}
+
+.modernCell {
+    padding: 1rem 1.5rem;
+    font-size: 0.875rem;
+    color: #111827;
+    white-space: nowrap;
+}
+
+.modernCellSecondary {
+    padding: 1rem 1.5rem;
+    font-size: 0.875rem;
+    color: #6B7280;
+    white-space: nowrap;
+}
+
+.actionButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #9CA3AF;
+    transition: color 0.15s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.actionButton:hover {
+    color: #D97706;
+    /* Darker yellow/orange */
+}
