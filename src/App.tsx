@@ -22,6 +22,7 @@ import { InventoryPage } from './pages/Inventory/InventoryPage';
 import { ProductDetailsPage } from './pages/Inventory/ProductDetailsPage';
 import { InventoryMovementsPage } from './pages/Inventory/InventoryMovementsPage';
 import { LogsPage } from './pages/Logs/LogsPage';
+import { CategoriesPage } from './pages/Categories/CategoriesPage';
 
 function App() {
   return (
@@ -58,6 +59,12 @@ function App() {
               <Route path="inventory/products" element={
                 <AccessRoute allowedRoles={['administrative']} requiredPermission="inventory">
                   <ProductsPage />
+                </AccessRoute>
+              } />
+
+              <Route path="inventory/categories" element={
+                <AccessRoute allowedRoles={['administrative']} requiredPermission="inventory">
+                  <CategoriesPage />
                 </AccessRoute>
               } />
 

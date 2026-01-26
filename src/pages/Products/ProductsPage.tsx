@@ -3,14 +3,20 @@ import { Plus } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { ProductCard, type Product } from './ProductCard';
 import { ProductModal } from './ProductModal';
+import { CategoryModal } from '../Categories/CategoryModal';
+import { useAuth } from '../../contexts/AuthContext';
 import styles from './Products.module.css';
 import { loggerService } from '../../services/loggerService';
 
 export const ProductsPage: React.FC = () => {
+    const { profile } = useAuth();
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+
+    const canManageCategories = profile?.role === 'admin' || profile?.role === 'manager';
 
     const fetchProducts = async () => {
         setLoading(true);
@@ -86,13 +92,24 @@ export const ProductsPage: React.FC = () => {
         <div className={styles.container}>
             <div className={styles.header}>
                 <h1 className={styles.title}>Produtos</h1>
-                <button
-                    onClick={handleCreate}
-                    className={styles.primaryButton}
-                >
-                    <Plus size={20} />
-                    Novo Produto
-                </button>
+                <div className="flex gap-2">
+                    {canManageCategories && (
+                        <button
+                            onClick={() => setIsCategoryModalOpen(true)}
+                            className={`${styles.primaryButton} bg-gray-600 hover:bg-gray-700`}
+                        >
+                            <Plus size={20} />
+                            Nova Categoria
+                        </button>
+                    )}
+                    <button
+                        onClick={handleCreate}
+                        className={styles.primaryButton}
+                    >
+                        <Plus size={20} />
+                        Novo Produto
+                    </button>
+                </div>
             </div>
 
             {loading ? (
@@ -122,6 +139,12 @@ export const ProductsPage: React.FC = () => {
                 onClose={() => setIsModalOpen(false)}
                 onSave={handleSave}
                 productToEdit={editingProduct}
+            />
+
+            <CategoryModal
+                isOpen={isCategoryModalOpen}
+                onClose={() => setIsCategoryModalOpen(false)}
+                onSuccess={() => { }} // No need to refetch products, but maybe handy if products list depended on valid cats
             />
         </div>
     );

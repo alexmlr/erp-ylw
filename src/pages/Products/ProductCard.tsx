@@ -6,6 +6,7 @@ export interface Product {
     id: string;
     name: string;
     category: string;
+    category_id?: string | null; // Add this
     unit: string;
     image_url: string | null;
     quantity?: number;

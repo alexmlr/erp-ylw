@@ -143,6 +143,30 @@ export const quotationService = {
         return data as QuotationLog[];
     },
 
+    // --- Analytics ---
+
+    async getApprovedQuotationsWithDetails() {
+        const { data, error } = await supabase
+            .from('quotations')
+            .select(`
+                *,
+                products:quotation_products(
+                    quantity,
+                    prices:quotation_product_prices(supplier_id, unit_price),
+                    product:products(
+                        id, 
+                        name, 
+                        category_id,
+                        category_data:categories(name)
+                    )
+                )
+            `)
+            .eq('status', 'approved');
+
+        if (error) throw error;
+        return data as Quotation[];
+    },
+
     // --- Update ---
 
     // For Admin updating prices/quantities before sending

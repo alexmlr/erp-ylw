@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Loader2, Image as ImageIcon } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import type { Product } from './ProductCard';
+import type { Product } from './ProductCard'; // Assuming ProductCard extends or uses global type, checking next.
+import type { Category } from '../../types';
+import { categoryService } from '../../services/categoryService';
 import styles from './Products.module.css';
 import { loggerService } from '../../services/loggerService';
 
@@ -11,17 +13,6 @@ interface ProductModalProps {
     onSave: () => void;
     productToEdit?: Product | null;
 }
-
-const CATEGORIES = [
-    'Alimentos e Bebidas',
-    'Ferramentas',
-    'Limpeza',
-    'Loja Yellow',
-    'Manutenção',
-    'Material de Escritório',
-    'Obra',
-    'Outros'
-].sort();
 
 const UNITS = [
     'Caixa',
@@ -34,7 +25,8 @@ const UNITS = [
 
 export const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, productToEdit }) => {
     const [name, setName] = useState('');
-    const [category, setCategory] = useState('');
+    const [categoryId, setCategoryId] = useState('');
+    const [categories, setCategories] = useState<Category[]>([]);
     const [unit, setUnit] = useState('');
     const [minQuantity, setMinQuantity] = useState(0);
     const [imageFile, setImageFile] = useState<File | null>(null);
@@ -42,10 +34,23 @@ export const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onS
     const [loading, setLoading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+
+    useEffect(() => {
+        const loadCategories = async () => {
+            try {
+                const cats = await categoryService.getCategories();
+                setCategories(cats);
+            } catch (err) {
+                console.error('Failed to load categories', err);
+            }
+        };
+        loadCategories();
+    }, []);
+
     useEffect(() => {
         if (productToEdit) {
             setName(productToEdit.name);
-            setCategory(productToEdit.category);
+            setCategoryId(productToEdit.category_id || '');
             setUnit(productToEdit.unit);
             setMinQuantity(productToEdit.min_quantity || 0);
             setImagePreview(productToEdit.image_url);
@@ -56,7 +61,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onS
 
     const resetForm = () => {
         setName('');
-        setCategory('');
+        setCategoryId('');
         setUnit('');
         setMinQuantity(0);
         setImageFile(null);
@@ -108,9 +113,14 @@ export const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onS
                 imageUrl = publicUrl;
             }
 
+
+            // Find category name for backward compatibility or redundant display
+            const selectedCatData = categories.find(c => c.id === categoryId);
+
             const productData = {
                 name,
-                category,
+                category_id: categoryId,
+                category: selectedCatData?.name || '', // Fallback or computed
                 unit,
                 min_quantity: minQuantity,
                 image_url: imageUrl
@@ -216,13 +226,13 @@ export const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onS
                             <label className={styles.label}>Categoria</label>
                             <select
                                 required
-                                value={category}
-                                onChange={(e) => setCategory(e.target.value)}
+                                value={categoryId}
+                                onChange={(e) => setCategoryId(e.target.value)}
                                 className={styles.select}
                             >
                                 <option value="">Selecione...</option>
-                                {CATEGORIES.map(cat => (
-                                    <option key={cat} value={cat}>{cat}</option>
+                                {categories.map(cat => (
+                                    <option key={cat.id} value={cat.id}>{cat.name}</option>
                                 ))}
                             </select>
                         </div>

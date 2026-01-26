@@ -64,6 +64,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                     icon: Box,
                     show: checkRole(['admin', 'manager', 'administrative']) || hasPermission('inventory')
                 },
+                // Categories: Admin, Manager, Administrative OR Inventory Permission
+                {
+                    path: '/inventory/categories',
+                    label: 'Categorias',
+                    icon: Database,
+                    show: checkRole(['admin', 'manager', 'administrative']) || hasPermission('inventory')
+                },
                 // Suppliers: Admin, Manager, Administrative OR Purchases Permission
                 {
                     path: '/purchases/suppliers',

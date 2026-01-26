@@ -10,13 +10,7 @@ export const Inventory: React.FC = () => (
     </div>
 );
 
-export const Purchases: React.FC = () => (
-    <div className={styles.container}>
-        <h1 className={styles.title}>Compras</h1>
-        <div className={styles.card}>
-            Módulo em desenvolvimento...
-        </div>
-    </div>
-);
+export const Purchases: React.FC = () => <PurchasesDashboard />;
+import { PurchasesDashboard } from './Purchases/PurchasesDashboard';
 
 export { SettingsPage as Settings } from './Settings/SettingsPage';

@@ -60,6 +60,12 @@ export interface Supplier {
     updated_at?: string;
 }
 
+export interface Category {
+    id: string;
+    name: string;
+    created_at: string;
+}
+
 export interface Product {
     id: string;
     name: string;
@@ -67,7 +73,9 @@ export interface Product {
     unit: string;
     min_quantity?: number;
     quantity: number;
-    category?: string;
+    category?: string; // Keep for backward compatibility/display if needed, but redundant with join
+    category_id?: string | null;
+    category_data?: Category; // For joined data
     image_url?: string | null;
     created_at: string;
 }
