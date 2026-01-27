@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Package, Calendar, Filter } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../contexts/AuthContext';
+
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
     PieChart, Pie, Cell, Legend
@@ -30,13 +32,24 @@ interface Movement {
     user: { full_name: string };
 }
 
+interface PriceHistoryPoint {
+    date: string;
+    timestamp: number;
+    price: number;
+    quotationId: string;
+}
+
 export const ProductDetailsPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [product, setProduct] = useState<ProductDetails | null>(null);
     const [movements, setMovements] = useState<Movement[]>([]);
+    const [priceHistory, setPriceHistory] = useState<PriceHistoryPoint[]>([]);
     const [loading, setLoading] = useState(true);
     const [units, setUnits] = useState<{ id: string, name: string }[]>([]);
+
+    const { profile } = useAuth();
+    const canViewPrices = profile?.role === 'admin' || profile?.role === 'manager';
 
     // Filters
     const [selectedUnit, setSelectedUnit] = useState<string>('all');
@@ -77,8 +90,51 @@ export const ProductDetailsPage: React.FC = () => {
                 .eq('product_id', id)
                 .order('created_at', { ascending: true }); // Ascending for chart calculation
 
+
+
             if (movError) throw movError;
             setMovements(movData as any || []);
+
+            // Fetch Price History (Approved Quotations)
+            if (canViewPrices) {
+                const { data: priceData, error: priceError } = await supabase
+                    .from('quotation_products')
+                    .select(`
+                        id,
+                        quotation:quotations!inner (
+                            id, created_at, status, display_id
+                        ),
+                        prices:quotation_product_prices (
+                            unit_price
+                        )
+                    `)
+                    .eq('product_id', id)
+                    .eq('quotation.status', 'approved');
+
+                if (priceError) {
+                    console.error('Error fetching prices:', priceError);
+                } else {
+                    const history = priceData.map((item: any) => {
+                        // Find lowest price in this approved quote
+                        const minPrice = item.prices?.reduce((min: number, p: any) =>
+                            p.unit_price < min ? p.unit_price : min
+                            , Infinity) || 0;
+
+                        if (minPrice === Infinity || minPrice === 0) return null;
+
+                        return {
+                            date: new Date(item.quotation.created_at).toLocaleDateString(),
+                            timestamp: new Date(item.quotation.created_at).getTime(),
+                            price: minPrice,
+                            quotationId: item.quotation.display_id
+                        };
+                    })
+                        .filter(Boolean)
+                        .sort((a: any, b: any) => a.timestamp - b.timestamp);
+
+                    setPriceHistory(history as PriceHistoryPoint[]);
+                }
+            }
 
         } catch (error) {
             console.error('Error fetching details:', error);
@@ -180,7 +236,42 @@ export const ProductDetailsPage: React.FC = () => {
                             </LineChart>
                         </ResponsiveContainer>
                     </div>
+
                 </div>
+
+                {/* Price History Chart (Gestão only) */}
+                {canViewPrices && (
+                    <div className={styles.chartCard}>
+                        <h3 className={styles.chartTitle}>Evolução de Preço (Últimas Compras)</h3>
+                        <div className={styles.chartContainer}>
+                            {priceHistory.length > 0 ? (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <LineChart data={priceHistory}>
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis dataKey="date" />
+                                        <YAxis tickFormatter={(val) => `R$ ${val}`} />
+                                        <Tooltip
+                                            formatter={(value: any) => [`R$ ${Number(value).toFixed(2)}`, 'Valor Aprovado']}
+                                            labelFormatter={(label) => `Data: ${label}`}
+                                        />
+                                        <Line
+                                            type="monotone"
+                                            dataKey="price"
+                                            stroke="#10B981"
+                                            strokeWidth={2}
+                                            dot={{ r: 4 }}
+                                            name="Preço"
+                                        />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                            ) : (
+                                <div className="h-full flex items-center justify-center text-gray-500">
+                                    Sem histórico de compras aprovadas
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
 
                 {/* Consumption by Unit */}
                 <div className={styles.chartCard}>
@@ -293,6 +384,6 @@ export const ProductDetailsPage: React.FC = () => {
                     </table>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
