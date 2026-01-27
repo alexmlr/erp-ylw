@@ -149,18 +149,31 @@ export const ProductDetailsPage: React.FC = () => {
     // --- Process Data for Charts ---
 
     // 1. Stock Fluctuation (Line Chart)
-    let currentStock = 0;
-    const fluctuationData = movements.map(m => {
-        const change = m.type === 'IN' ? m.quantity : -m.quantity;
-        currentStock += change;
-        return {
-            date: new Date(m.movement_date || m.created_at).toLocaleDateString(),
-            timestamp: new Date(m.movement_date || m.created_at).getTime(),
-            stock: currentStock,
-            type: m.type,
-            quantity: m.quantity
-        };
-    }).sort((a, b) => a.timestamp - b.timestamp);
+    // Calculate backwards from current stock to ensure accuracy
+    let runningStock = product.quantity;
+
+    const fluctuationData = [...movements]
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) // Newest first
+        .map(m => {
+            // The stock level recorded for this timestamp is the state AFTER the movement (which is the current runningStock)
+            const point = {
+                date: new Date(m.movement_date || m.created_at).toLocaleDateString(),
+                timestamp: new Date(m.movement_date || m.created_at).getTime(),
+                stock: runningStock,
+                type: m.type,
+                quantity: m.quantity
+            };
+
+            // Reverse the movement to prepare for the next (older) iteration
+            if (m.type === 'IN') {
+                runningStock -= m.quantity;
+            } else {
+                runningStock += m.quantity;
+            }
+
+            return point;
+        })
+        .sort((a, b) => a.timestamp - b.timestamp); // Sort back to Oldest -> Newest for chart
 
     // 2. Consumption by Unit (Pie Chart) - Filtered by Month
     const filteredMovements = movements.filter(m => {
@@ -232,7 +245,7 @@ export const ProductDetailsPage: React.FC = () => {
                                 <XAxis dataKey="date" />
                                 <YAxis />
                                 <Tooltip />
-                                <Line type="monotone" dataKey="stock" stroke="#2563eb" strokeWidth={2} dot={{ r: 3 }} />
+                                <Line type="monotone" dataKey="stock" name="Estoque" stroke="#2563eb" strokeWidth={2} dot={{ r: 3 }} />
                             </LineChart>
                         </ResponsiveContainer>
                     </div>
