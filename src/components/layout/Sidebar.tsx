@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Package, ShoppingCart, Settings, Users, FileText, Truck, FileSpreadsheet, ChevronDown, ChevronRight, Box, Database } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Settings, Users, FileText, Truck, FileSpreadsheet, ChevronDown, ChevronRight, Box, Database, Wrench } from 'lucide-react';
 import styles from './Layout.module.css';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -103,6 +103,33 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
             show: checkRole(['admin', 'manager', 'administrative']) || hasPermission('inventory'),
             children: [
                 // Requisitions was here, now moved to root
+            ]
+        },
+        {
+            path: '/maintenance',
+            label: 'Manutenção',
+            icon: Wrench,
+            // Available to everyone (as per request: "esté modulo será aberto a todos os usuários")
+            show: true,
+            children: [
+                {
+                    path: '/maintenance/os/new',
+                    label: 'Ordem de serviço',
+                    icon: FileText,
+                    show: true
+                },
+                {
+                    path: '/maintenance/categories',
+                    label: 'Categorias',
+                    icon: Database,
+                    show: checkRole(['admin', 'manager'])
+                },
+                {
+                    path: '/maintenance/types',
+                    label: 'Tipos',
+                    icon: Database,
+                    show: checkRole(['admin', 'manager'])
+                }
             ]
         },
         {

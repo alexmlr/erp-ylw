@@ -23,6 +23,10 @@ import { ProductDetailsPage } from './pages/Inventory/ProductDetailsPage';
 import { InventoryMovementsPage } from './pages/Inventory/InventoryMovementsPage';
 import { LogsPage } from './pages/Logs/LogsPage';
 import { CategoriesPage } from './pages/Categories/CategoriesPage';
+import { MaintenanceDashboard } from './pages/Maintenance/MaintenanceDashboard';
+import { ServiceOrderForm } from './pages/Maintenance/ServiceOrderForm';
+import { CategoriesPage as MaintenanceCategoriesPage } from './pages/Maintenance/CategoriesPage';
+import { TypesPage as MaintenanceTypesPage } from './pages/Maintenance/TypesPage';
 
 function App() {
   return (
@@ -70,6 +74,21 @@ function App() {
 
               {/* Requisitions - Available to all authenticated users */}
               <Route path="inventory/requisitions" element={<RequisitionsPage />} />
+
+              {/* Maintenance Module - Access: All Users */}
+              <Route path="maintenance" element={<MaintenanceDashboard />} />
+              <Route path="maintenance/os/new" element={<ServiceOrderForm />} />
+              <Route path="maintenance/os/:id" element={<ServiceOrderForm />} />
+              <Route path="maintenance/categories" element={
+                <AccessRoute allowedRoles={['admin', 'manager']}>
+                  <MaintenanceCategoriesPage />
+                </AccessRoute>
+              } />
+              <Route path="maintenance/types" element={
+                <AccessRoute allowedRoles={['admin', 'manager']}>
+                  <MaintenanceTypesPage />
+                </AccessRoute>
+              } />
 
               {/* Purchases Module - Access: Admin, Manager OR 'purchases' permission */}
               <Route path="purchases" element={
