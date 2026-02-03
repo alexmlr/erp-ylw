@@ -461,7 +461,7 @@ export const RequisitionFormModal: React.FC<RequisitionFormModalProps> = ({ isOp
                             value={unitId}
                             onChange={(e) => setUnitId(e.target.value)}
                             className={styles.select}
-                            disabled={!['admin', 'manager'].includes(profile?.role || '') && !!profile?.unit_id}
+                            disabled={!['admin', 'manager', 'administrative'].includes(profile?.role || '') && !!profile?.unit_id}
                         >
                             <option value="">Selecione a Unidade</option>
                             {units.map((u) => (

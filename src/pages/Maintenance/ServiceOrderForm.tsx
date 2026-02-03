@@ -70,7 +70,7 @@ export const ServiceOrderForm: React.FC = () => {
     const [previewImage, setPreviewImage] = useState<string | null>(null);
 
     const isEditing = !!id;
-    const isCommercial = !['admin', 'manager', 'Gestão', 'Administrador'].includes(profile?.role || '');
+    const isCommercial = !['admin', 'manager', 'Gestão', 'Administrador', 'administrative'].includes(profile?.role || '');
     // const canManageImages = ['Gestão', 'Administrador', 'admin', 'manager'].includes(profile?.role || '');
 
     // Read-only if: User is Commercial AND Status is NOT Rascunho implies it was sent.
