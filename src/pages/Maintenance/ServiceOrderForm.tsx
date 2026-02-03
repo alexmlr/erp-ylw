@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
@@ -27,6 +28,32 @@ export const ServiceOrderForm: React.FC = () => {
     const [typeId, setTypeId] = useState('');
     const [description, setDescription] = useState('');
 
+    const [code, setCode] = useState('');
+
+
+    // Map Priority Text to Level (1-4)
+    const getPriorityLevel = (p: string) => {
+        switch (p) {
+            case 'Baixa': return 1;
+            case 'Normal': return 2;
+            case 'Alta': return 3;
+            case 'Urgente': return 4;
+            default: return 2; // Default Normal
+        }
+    };
+
+    const getPriorityText = (level: number) => {
+        switch (level) {
+            case 1: return 'Baixa';
+            case 2: return 'Normal';
+            case 3: return 'Alta';
+            case 4: return 'Urgente';
+            default: return 'Normal';
+        }
+    };
+
+    const [priorityLevel, setPriorityLevel] = useState(2);
+
     // Auxiliary Data
     const [units, setUnits] = useState<Unit[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
@@ -40,9 +67,10 @@ export const ServiceOrderForm: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState('');
+    const [previewImage, setPreviewImage] = useState<string | null>(null);
 
     const isEditing = !!id;
-    const isCommercial = !['admin', 'manager', 'administrative', 'Gestão', 'Administrador'].includes(profile?.role || '');
+    const isCommercial = !['admin', 'manager', 'Gestão', 'Administrador'].includes(profile?.role || '');
     // const canManageImages = ['Gestão', 'Administrador', 'admin', 'manager'].includes(profile?.role || '');
 
     // Read-only if: User is Commercial AND Status is NOT Rascunho implies it was sent.
@@ -83,9 +111,12 @@ export const ServiceOrderForm: React.FC = () => {
             if (error) throw error;
             if (data) {
                 setStatus(data.status);
+                setCode(data.code);
                 setServiceDate(data.service_date);
                 setUnitId(data.unit_id);
                 setPriority(data.priority);
+                setPriorityLevel(getPriorityLevel(data.priority));
+
                 setCategoryId(data.category_id);
                 setTypeId(data.type_id);
                 setDescription(data.description || '');
@@ -166,7 +197,9 @@ export const ServiceOrderForm: React.FC = () => {
                 unit_id: unitId,
                 category_id: categoryId,
                 type_id: typeId,
-                priority,
+
+                priority: getPriorityText(priorityLevel),
+                due_date: calculateDueDate(serviceDate, priorityLevel),
                 service_date: serviceDate,
                 description,
                 status: finalStatus,
@@ -261,6 +294,13 @@ export const ServiceOrderForm: React.FC = () => {
         }
     };
 
+    const calculateDueDate = (startDate: string, level: number) => {
+        const days = level === 1 ? 15 : level === 2 ? 7 : level === 3 ? 3 : 1;
+        const date = new Date(startDate);
+        date.setDate(date.getDate() + days);
+        return date.toISOString();
+    };
+
     if (loading) return <div className="p-6">Carregando...</div>;
 
     return (
@@ -275,7 +315,7 @@ export const ServiceOrderForm: React.FC = () => {
                     <h1 className={styles.title}>
                         {isEditing ? 'Editar Ordem de Serviço' : 'Nova Ordem de Serviço'}
                     </h1>
-                    {id && <span className="text-sm text-gray-500">ID: {id}</span>}
+                    {code && <span className="text-sm font-medium text-gray-600 bg-gray-100 px-3 py-1 rounded-full">{code}</span>}
                 </div>
 
                 <div className={styles.formGrid}>
@@ -353,18 +393,68 @@ export const ServiceOrderForm: React.FC = () => {
                     </div>
 
                     {/* Linha 3 */}
-                    <div>
-                        <label className={styles.formLabel}>Prioridade (*)</label>
-                        <select
-                            value={priority}
-                            onChange={e => setPriority(e.target.value)}
-                            disabled={isReadOnly}
-                            className={styles.input}
-                            style={isReadOnly ? { backgroundColor: '#f3f4f6' } : {}}
+
+                    {/* Priority Slider */}
+                    {/* Priority Slider */}
+                    <div className={styles.colSpanFull} style={{ marginTop: '2rem', marginBottom: '2rem' }}>
+                        <div
+                            className="bg-gray-50 rounded-xl p-6 border border-gray-200"
+                            style={{ maxWidth: '850px', margin: '0 auto' }}
                         >
-                            <option value="Normal">Normal</option>
-                            <option value="Urgente">Urgente</option>
-                        </select>
+                            <label className={`${styles.formLabel} text-center block mb-6`}>Prioridade (*)</label>
+                            <div className="px-2">
+                                <input
+                                    type="range"
+                                    min="1"
+                                    max="4"
+                                    step="1"
+                                    value={priorityLevel}
+                                    onChange={(e) => {
+                                        const val = parseInt(e.target.value);
+                                        setPriorityLevel(val);
+                                        setPriority(getPriorityText(val)); // Keep sync
+                                    }}
+                                    disabled={isReadOnly}
+                                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                                    style={{
+                                        accentColor: priorityLevel === 1 ? '#22c55e' : // Green
+                                            priorityLevel === 2 ? '#3b82f6' : // Blue
+                                                priorityLevel === 3 ? '#eab308' : // Yellow
+                                                    '#ef4444' // Red
+                                    }}
+                                />
+                                <div className="flex justify-between mt-2 px-1">
+                                    {[1, 2, 3, 4].map((level) => (
+                                        <div key={level} className="flex flex-col items-center w-24 text-center cursor-pointer" onClick={() => !isReadOnly && setPriorityLevel(level)}>
+                                            <div
+                                                className={`w-4 h-4 rounded-full mb-1 transition-colors ${priorityLevel === level
+                                                    ? (level === 1 ? 'bg-green-500 ring-4 ring-green-100' :
+                                                        level === 2 ? 'bg-blue-500 ring-4 ring-blue-100' :
+                                                            level === 3 ? 'bg-yellow-500 ring-4 ring-yellow-100' :
+                                                                'bg-red-500 ring-4 ring-red-100')
+                                                    : 'bg-gray-300'
+                                                    }`}
+                                            />
+                                            <span className={`text-sm font-bold ${priorityLevel === level
+                                                ? (level === 1 ? 'text-green-600' :
+                                                    level === 2 ? 'text-blue-600' :
+                                                        level === 3 ? 'text-yellow-600' :
+                                                            'text-red-600')
+                                                : 'text-gray-500'
+                                                }`}>
+                                                {getPriorityText(level)}
+                                            </span>
+                                            <span className="text-[10px] text-gray-500 leading-tight mt-1">
+                                                {level === 1 && "Manutenção estética/preventiva. Pode esperar."}
+                                                {level === 2 && "Manutenção de rotina ou corretiva leve."}
+                                                {level === 3 && "Impacta eficiência, mas operação continua."}
+                                                {level === 4 && "Risco iminente, parada ou falha."}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div>
@@ -420,10 +510,15 @@ export const ServiceOrderForm: React.FC = () => {
                                     <img
                                         src={`${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/maintenance-images/${att.storage_path}`}
                                         alt={att.file_name}
+                                        onClick={() => setPreviewImage(`${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/maintenance-images/${att.storage_path}`)}
+                                        className="cursor-pointer hover:opacity-90"
                                     />
                                     {(!isReadOnly) && (
                                         <button
-                                            onClick={() => removeExistingAttachment(att.id, att.storage_path)}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                removeExistingAttachment(att.id, att.storage_path);
+                                            }}
                                             className={styles.removeImageBtn}
                                         >
                                             <Trash2 size={16} />
@@ -439,9 +534,14 @@ export const ServiceOrderForm: React.FC = () => {
                                         src={URL.createObjectURL(file)}
                                         alt="preview"
                                         style={{ opacity: 0.8 }}
+                                        onClick={() => setPreviewImage(URL.createObjectURL(file))}
+                                        className="cursor-pointer hover:opacity-100"
                                     />
                                     <button
-                                        onClick={() => removeNewImage(idx)}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            removeNewImage(idx);
+                                        }}
                                         className={styles.removeImageBtn}
                                     >
                                         <X size={16} />
@@ -495,6 +595,51 @@ export const ServiceOrderForm: React.FC = () => {
                     )}
                 </div>
             </div>
+            {/* Image Preview Modal */}
+            {/* Image Preview Modal - Portaled to body */}
+            {previewImage && createPortal(
+                <div
+                    className="fixed inset-0 bg-black/80 z-[9999] flex items-center justify-center p-4 cursor-pointer"
+                    onClick={() => setPreviewImage(null)}
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        zIndex: 9999,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backdropFilter: 'blur(4px)'
+                    }}
+                >
+                    <div
+                        className="relative flex items-center justify-center"
+                        style={{ maxWidth: '90vw', maxHeight: '90vh' }}
+                    >
+                        <img
+                            src={previewImage}
+                            alt="Full View"
+                            className="rounded-lg shadow-2xl"
+                            style={{
+                                maxWidth: '100%',
+                                maxHeight: '90vh',
+                                objectFit: 'contain'
+                            }}
+                        />
+                        <button
+                            className="absolute -top-10 right-0 text-white hover:text-gray-300 transition-colors"
+                            onClick={() => setPreviewImage(null)}
+                            style={{ padding: '0.5rem' }}
+                        >
+                            <X size={32} />
+                        </button>
+                    </div>
+                </div>,
+                document.body
+            )}
         </div>
     );
 };

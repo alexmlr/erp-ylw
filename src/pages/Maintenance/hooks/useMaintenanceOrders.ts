@@ -6,8 +6,9 @@ export interface MaintenanceOrder {
     code: number;
     description: string;
     status: 'Rascunho' | 'Aberto' | 'Pendente' | 'Concluído';
-    priority: 'Normal' | 'Urgente';
+    priority: 'Baixa' | 'Normal' | 'Alta' | 'Urgente' | string;
     service_date: string;
+    due_date?: string;
     created_at: string;
     unit: { name: string };
     category: { name: string };
@@ -32,6 +33,7 @@ export function useMaintenanceOrders(userId?: string) {
                     status,
                     priority,
                     service_date,
+                    due_date,
                     created_at,
                     unit:units(name),
                     category:maintenance_categories(name),
@@ -41,9 +43,11 @@ export function useMaintenanceOrders(userId?: string) {
                 .order('created_at', { ascending: false });
 
             // If userId is provided, filter by it (Commercial view)
-            // Otherwise fetch all (Management view)
+            // Otherwise fetch all (Management view) but exclude drafts
             if (userId) {
                 query = query.eq('user_id', userId);
+            } else {
+                query = query.neq('status', 'Rascunho');
             }
 
             const { data, error } = await query;

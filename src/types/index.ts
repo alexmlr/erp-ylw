@@ -60,6 +60,33 @@ export interface Supplier {
     updated_at?: string;
 }
 
+export type MaintenanceOrderStatus = 'PENDENTE' | 'EM_ANDAMENTO' | 'CONCLUIDA' | 'CANCELADA';
+export type MaintenanceType = { id: string; name: string; created_at: string; }; // Placeholder, assuming a similar structure to Category
+export type MaintenanceAttachment = { id: string; url: string; filename: string; created_at: string; }; // Placeholder
+
+export interface MaintenanceOrder {
+    id: string;
+    code: string;
+    created_at: string;
+    service_date: string;
+    due_date?: string; // Optional as old orders might not have it immediately
+    unit_id: string;
+    category_id: string;
+    type_id: string;
+    priority: 'Baixa' | 'Normal' | 'Alta' | 'Urgente' | string;
+    description: string;
+    status: MaintenanceOrderStatus;
+    photos: string[];
+    user_id: string;
+
+    // Relations
+    unit?: Unit;
+    category?: Category;
+    type?: MaintenanceType;
+    profile?: Profile;
+    attachments?: MaintenanceAttachment[];
+}
+
 export interface Category {
     id: string;
     name: string;
