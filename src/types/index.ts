@@ -149,3 +149,13 @@ export interface QuotationLog {
     action_description: string;
     created_at: string;
 }
+
+export interface PadlockSale {
+    id: string;
+    sale_date: string;
+    value: number;
+    payment_method: string;
+    unit_id: string;
+    unit?: Unit;
+    created_at: string;
+}

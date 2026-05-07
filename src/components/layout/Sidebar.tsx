@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Package, ShoppingCart, Settings, Users, FileText, Truck, FileSpreadsheet, ChevronDown, ChevronRight, Box, Database, Wrench } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Settings, Users, FileText, Truck, FileSpreadsheet, ChevronDown, ChevronRight, Box, Database, Wrench, Lock } from 'lucide-react';
 import styles from './Layout.module.css';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -140,6 +140,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
             children: [
                 { path: '/purchases/quotations', label: 'Cotações', icon: FileSpreadsheet, show: true },
                 { path: '/purchases/suppliers', label: 'Fornecedores', icon: Truck, show: true },
+            ]
+        },
+        {
+            path: '/cadeados',
+            label: 'Venda de Cadeados',
+            icon: Lock,
+            show: checkRole(['admin', 'manager', 'administrative']),
+            children: [
+                { path: '/cadeados?new=true', label: '+ Nova Venda', icon: FileText, show: true },
             ]
         },
         {

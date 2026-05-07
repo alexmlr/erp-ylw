@@ -27,6 +27,7 @@ import { MaintenanceDashboard } from './pages/Maintenance/MaintenanceDashboard';
 import { ServiceOrderForm } from './pages/Maintenance/ServiceOrderForm';
 import { CategoriesPage as MaintenanceCategoriesPage } from './pages/Maintenance/CategoriesPage';
 import { TypesPage as MaintenanceTypesPage } from './pages/Maintenance/TypesPage';
+import { PadlocksDashboard } from './pages/Padlocks/PadlocksDashboard';
 
 function App() {
   return (
@@ -134,6 +135,12 @@ function App() {
               <Route path="users" element={
                 <AccessRoute allowedRoles={['admin', 'manager']}>
                   <UserList />
+                </AccessRoute>
+              } />
+
+              <Route path="cadeados" element={
+                <AccessRoute allowedRoles={['admin', 'manager', 'administrative']}>
+                  <PadlocksDashboard />
                 </AccessRoute>
               } />
 
