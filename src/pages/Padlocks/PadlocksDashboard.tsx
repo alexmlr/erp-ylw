@@ -191,7 +191,11 @@ export const PadlocksDashboard: React.FC = () => {
                                         sales.map((sale) => (
                                             <tr key={sale.id} className={styles.modernRow}>
                                                 <td className={styles.modernCell}>
-                                                    {new Date(sale.sale_date).toLocaleDateString('pt-BR')}
+                                                    {/* Parseia a data diretamente da string para evitar deslocamento de fuso UTC */}
+                                                    {(() => {
+                                                        const [y, m, d] = sale.sale_date.split('T')[0].split('-');
+                                                        return `${d}/${m}/${y}`;
+                                                    })()}
                                                 </td>
                                                 <td className={styles.modernCell}>{sale.unit?.name || 'Desconhecida'}</td>
                                                 <td className={styles.modernCell}>

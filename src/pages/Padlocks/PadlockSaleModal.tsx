@@ -11,9 +11,18 @@ interface PadlockSaleModalProps {
 }
 
 export const PadlockSaleModal: React.FC<PadlockSaleModalProps> = ({ onClose, onSuccess, initialData }) => {
-    const today = new Date().toISOString().split('T')[0];
+    // Retorna a data local no formato YYYY-MM-DD, sem conversão para UTC
+    const getLocalDateString = (date: Date = new Date()) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+    const today = getLocalDateString();
 
-    const [saleDate, setSaleDate] = useState(initialData?.sale_date ? new Date(initialData.sale_date).toISOString().split('T')[0] : today);
+    // sale_date vem do banco como 'YYYY-MM-DD'; ao fazer new Date() ele interpreta como UTC.
+    // Para evitar o deslocamento de fuso, apenas usamos a string diretamente.
+    const [saleDate, setSaleDate] = useState(initialData?.sale_date ? initialData.sale_date.split('T')[0] : today);
     const [value, setValue] = useState(initialData?.value ? initialData.value.toString() : '40.00');
     const [paymentMethod, setPaymentMethod] = useState(initialData?.payment_method || 'PIX');
     const [unitId, setUnitId] = useState(initialData?.unit_id || '');
