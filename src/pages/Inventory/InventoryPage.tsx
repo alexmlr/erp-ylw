@@ -187,7 +187,7 @@ export const InventoryPage: React.FC = () => {
                         </table>
                     </div>
                     <div className={styles.pagination}>
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <div className={styles.itemsPerPage}>
                             <span>Itens por página:</span>
                             <select
                                 value={itemsPerPage}
@@ -195,17 +195,50 @@ export const InventoryPage: React.FC = () => {
                                     setItemsPerPage(Number(e.target.value));
                                     setPage(1);
                                 }}
-                                className="border border-gray-300 rounded px-2 py-1 bg-white"
+                                className={styles.itemsPerPageSelect}
                             >
                                 <option value={25}>25</option>
                                 <option value={50}>50</option>
                                 <option value={100}>100</option>
                             </select>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <button disabled={page === 1} onClick={() => setPage(p => p - 1)}>Anterior</button>
-                            <span>{page} de {totalPages}</span>
-                            <button disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>Próxima</button>
+                        <span className={styles.paginationInfo}>
+                            Página {page} de {totalPages}
+                        </span>
+                        <div className={styles.paginationControls}>
+                            <button
+                                className={styles.paginationButton}
+                                disabled={page === 1}
+                                onClick={() => setPage(p => p - 1)}
+                            >
+                                ‹ Anterior
+                            </button>
+                            {Array.from({ length: totalPages }, (_, i) => i + 1)
+                                .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+                                .reduce<(number | string)[]>((acc, p, idx, arr) => {
+                                    if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push('...');
+                                    acc.push(p);
+                                    return acc;
+                                }, [])
+                                .map((p, idx) =>
+                                    p === '...'
+                                        ? <span key={`ellipsis-${idx}`} className={styles.paginationEllipsis}>…</span>
+                                        : <button
+                                            key={p}
+                                            onClick={() => setPage(p as number)}
+                                            className={`${styles.paginationButton} ${page === p ? styles.paginationButtonActive : ''}`}
+                                          >
+                                            {p}
+                                          </button>
+                                )
+                            }
+                            <button
+                                className={styles.paginationButton}
+                                disabled={page === totalPages}
+                                onClick={() => setPage(p => p + 1)}
+                            >
+                                Próxima ›
+                            </button>
                         </div>
                     </div>
                 </div>
