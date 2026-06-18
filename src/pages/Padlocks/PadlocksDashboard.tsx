@@ -10,7 +10,7 @@ import styles from './Padlocks.module.css';
 
 export const PadlocksDashboard: React.FC = () => {
     const { profile } = useAuth();
-    const isAdmin = profile?.role === 'admin';
+    const canManage = profile?.role === 'admin' || profile?.role === 'manager' || profile?.role === 'administrative';
     const [searchParams, setSearchParams] = useSearchParams();
     const isNewSale = searchParams.get('new') === 'true';
     const [sales, setSales] = useState<PadlockSale[]>([]);
@@ -342,7 +342,8 @@ export const PadlocksDashboard: React.FC = () => {
                                         <th>Unidade</th>
                                         <th>Forma de Pagamento</th>
                                         <th>Quantidade</th>
-                                        {isAdmin && <th>Ações</th>}
+                                        <th>Postagem</th>
+                                        {canManage && <th>Ações</th>}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -365,7 +366,14 @@ export const PadlocksDashboard: React.FC = () => {
                                                 <td className={styles.modernCell} style={{ fontWeight: 600 }}>
                                                     {sale.quantity || 1}
                                                 </td>
-                                                {isAdmin && (
+                                                <td className={styles.modernCell}>
+                                                    {sale.postagem_verificada ? (
+                                                        <span className={styles.verifiedBadge}>Sim</span>
+                                                    ) : (
+                                                        <span className={styles.unverifiedBadge}>Não</span>
+                                                    )}
+                                                </td>
+                                                {canManage && (
                                                     <td className={styles.modernCell}>
                                                         <div className={styles.actionsWrapper}>
                                                             <button 
@@ -389,7 +397,7 @@ export const PadlocksDashboard: React.FC = () => {
                                         ))
                                     ) : (
                                         <tr>
-                                            <td colSpan={isAdmin ? 5 : 4} className={styles.emptyText}>
+                                            <td colSpan={canManage ? 6 : 5} className={styles.emptyText}>
                                                 {hasActiveFilters ? 'Nenhuma venda encontrada para os filtros selecionados.' : 'Nenhuma venda registrada ainda.'}
                                             </td>
                                         </tr>

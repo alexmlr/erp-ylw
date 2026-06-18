@@ -157,5 +157,6 @@ export interface PadlockSale {
     payment_method: string;
     unit_id: string;
     unit?: Unit;
+    postagem_verificada?: boolean;
     created_at: string;
 }

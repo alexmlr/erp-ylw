@@ -564,3 +564,23 @@
     padding: 3rem;
     color: #6B7280;
 }
+
+.verifiedBadge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background-color: #D1FAE5;
+    color: #065F46;
+    border-radius: 9999px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+}
+
+.unverifiedBadge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background-color: #F3F4F6;
+    color: #6B7280;
+    border-radius: 9999px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+}

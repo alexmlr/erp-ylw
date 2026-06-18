@@ -26,6 +26,7 @@ export const PadlockSaleModal: React.FC<PadlockSaleModalProps> = ({ onClose, onS
     const [quantity, setQuantity] = useState(initialData?.quantity ? initialData.quantity.toString() : '1');
     const [paymentMethod, setPaymentMethod] = useState(initialData?.payment_method || 'PIX');
     const [unitId, setUnitId] = useState(initialData?.unit_id || '');
+    const [postagemVerificada, setPostagemVerificada] = useState(initialData?.postagem_verificada || false);
     
     const [units, setUnits] = useState<Unit[]>([]);
     const [loadingUnits, setLoadingUnits] = useState(true);
@@ -82,7 +83,8 @@ export const PadlockSaleModal: React.FC<PadlockSaleModalProps> = ({ onClose, onS
                         sale_date: saleDate,
                         quantity: numericQuantity,
                         payment_method: paymentMethod,
-                        unit_id: unitId
+                        unit_id: unitId,
+                        postagem_verificada: postagemVerificada
                     })
                     .eq('id', initialData.id);
 
@@ -94,7 +96,8 @@ export const PadlockSaleModal: React.FC<PadlockSaleModalProps> = ({ onClose, onS
                         sale_date: saleDate,
                         quantity: numericQuantity,
                         payment_method: paymentMethod,
-                        unit_id: unitId
+                        unit_id: unitId,
+                        postagem_verificada: postagemVerificada
                     }]);
 
                 if (error) throw error;
@@ -192,6 +195,20 @@ export const PadlockSaleModal: React.FC<PadlockSaleModalProps> = ({ onClose, onS
                                     className={styles.input}
                                 />
                             </div>
+                        </div>
+
+                        {/* Postagem Verificada */}
+                        <div className={styles.formGroup}>
+                            <label>Postagem Verificada</label>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 400, color: '#374151', fontSize: '0.875rem', padding: '0.25rem 0' }}>
+                                <input
+                                    type="checkbox"
+                                    checked={postagemVerificada}
+                                    onChange={(e) => setPostagemVerificada(e.target.checked)}
+                                    style={{ width: '1.125rem', height: '1.125rem', cursor: 'pointer' }}
+                                />
+                                Sim, postagem verificada
+                            </label>
                         </div>
                     </div>
 
