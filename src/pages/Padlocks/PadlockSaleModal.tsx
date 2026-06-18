@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import type { Unit, PadlockSale } from '../../types';
-import { X, Save, Calendar, MapPin, CreditCard } from 'lucide-react';
+import { X, Save, Calendar, MapPin, CreditCard, Hash } from 'lucide-react';
 import styles from './Padlocks.module.css';
 
 interface PadlockSaleModalProps {
@@ -23,7 +23,7 @@ export const PadlockSaleModal: React.FC<PadlockSaleModalProps> = ({ onClose, onS
     // sale_date vem do banco como 'YYYY-MM-DD'; ao fazer new Date() ele interpreta como UTC.
     // Para evitar o deslocamento de fuso, apenas usamos a string diretamente.
     const [saleDate, setSaleDate] = useState(initialData?.sale_date ? initialData.sale_date.split('T')[0] : today);
-    const [value, setValue] = useState(initialData?.value ? initialData.value.toString() : '40.00');
+    const [quantity, setQuantity] = useState(initialData?.quantity ? initialData.quantity.toString() : '1');
     const [paymentMethod, setPaymentMethod] = useState(initialData?.payment_method || 'PIX');
     const [unitId, setUnitId] = useState(initialData?.unit_id || '');
     
@@ -61,21 +61,26 @@ export const PadlockSaleModal: React.FC<PadlockSaleModalProps> = ({ onClose, onS
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        if (!unitId || !value || !saleDate || !paymentMethod) {
+        if (!unitId || !quantity || !saleDate || !paymentMethod) {
             alert('Por favor, preencha todos os campos obrigatórios.');
             return;
         }
 
         try {
             setSaving(true);
-            const numericValue = parseFloat(value.replace(',', '.'));
+            const numericQuantity = parseInt(quantity, 10);
             
+            if (numericQuantity < 1) {
+                alert('A quantidade deve ser pelo menos 1.');
+                return;
+            }
+
             if (initialData) {
                 const { error } = await supabase
                     .from('padlock_sales')
                     .update({
                         sale_date: saleDate,
-                        value: numericValue,
+                        quantity: numericQuantity,
                         payment_method: paymentMethod,
                         unit_id: unitId
                     })
@@ -87,7 +92,7 @@ export const PadlockSaleModal: React.FC<PadlockSaleModalProps> = ({ onClose, onS
                     .from('padlock_sales')
                     .insert([{
                         sale_date: saleDate,
-                        value: numericValue,
+                        quantity: numericQuantity,
                         payment_method: paymentMethod,
                         unit_id: unitId
                     }]);
@@ -172,18 +177,18 @@ export const PadlockSaleModal: React.FC<PadlockSaleModalProps> = ({ onClose, onS
                             </div>
                         </div>
 
-                        {/* Valor */}
+                        {/* Quantidade */}
                         <div className={styles.formGroup}>
-                            <label>Valor (R$)</label>
+                            <label>Quantidade</label>
                             <div className={styles.inputWrapper}>
-                                <span className={styles.inputPrefix}>R$</span>
+                                <Hash size={18} className={styles.inputIcon} />
                                 <input
                                     type="number"
-                                    step="0.01"
-                                    min="0"
+                                    step="1"
+                                    min="1"
                                     required
-                                    value={value}
-                                    onChange={(e) => setValue(e.target.value)}
+                                    value={quantity}
+                                    onChange={(e) => setQuantity(e.target.value)}
                                     className={styles.input}
                                 />
                             </div>
@@ -217,4 +222,3 @@ export const PadlockSaleModal: React.FC<PadlockSaleModalProps> = ({ onClose, onS
         </div>
     );
 };
-

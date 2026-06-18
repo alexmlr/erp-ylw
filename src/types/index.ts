@@ -153,7 +153,7 @@ export interface QuotationLog {
 export interface PadlockSale {
     id: string;
     sale_date: string;
-    value: number;
+    quantity: number;
     payment_method: string;
     unit_id: string;
     unit?: Unit;
