@@ -20,6 +20,13 @@
     gap: 0.5rem;
 }
 
+.headerActions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
 .primaryButton {
     display: flex;
     align-items: center;
@@ -38,15 +45,67 @@
     background-color: #D97706;
 }
 
+.secondaryButton {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background-color: #1F2937;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.secondaryButton:hover {
+    background-color: #374151;
+}
+
+.chartsSection {
+    margin-bottom: 2rem;
+}
+
+.chartsSectionLabel {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #9CA3AF;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.875rem;
+    margin-top: 0;
+}
+
 .chartsGrid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 1.5rem;
-    margin-bottom: 2rem;
 }
 
-@media (min-width: 1024px) {
+.chartsGrid2 {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
     .chartsGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .chartsGrid2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1200px) {
+    .chartsGrid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    .chartsGrid2 {
         grid-template-columns: repeat(2, 1fr);
     }
 }
@@ -583,4 +642,241 @@
     border-radius: 9999px;
     font-size: 0.8125rem;
     font-weight: 500;
+}
+
+/* ── Large Modal ──────────────────────────────────────────────────────────── */
+.modalContentLarge {
+    max-width: 760px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+/* ── Form Row (horizontal layout inside modal) ───────────────────────────── */
+.formRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+}
+
+@media (max-width: 640px) {
+    .formRow {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ── Items Section Label ─────────────────────────────────────────────────── */
+.itemsSectionLabel {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.selectedBadge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.1875rem 0.5rem;
+    background-color: #FEF3C7;
+    color: #92400E;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* ── Items Grid ──────────────────────────────────────────────────────────── */
+.itemsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+/* ── Item Card ───────────────────────────────────────────────────────────── */
+.itemCard {
+    border: 1.5px solid #E5E7EB;
+    border-radius: 0.5rem;
+    padding: 0.625rem 0.75rem;
+    transition: all 0.15s;
+    background: #F9FAFB;
+    user-select: none;
+}
+
+.itemCard:hover {
+    border-color: #F59E0B;
+    background: #FFFBEB;
+}
+
+.itemCardSelected {
+    border-color: #F59E0B;
+    background: #FFFBEB;
+}
+
+.itemCardHeader {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.itemCheckbox {
+    width: 1rem;
+    height: 1rem;
+    cursor: pointer;
+    accent-color: #F59E0B;
+    flex-shrink: 0;
+}
+
+.itemName {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+}
+
+/* ── Item Controls (quantity + value) ────────────────────────────────────── */
+.itemControls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #FDE68A;
+}
+
+.quantityControl {
+    display: flex;
+    align-items: center;
+    gap: 0.125rem;
+    flex-shrink: 0;
+}
+
+.qtyBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 1px solid #D1D5DB;
+    border-radius: 0.25rem;
+    background: white;
+    cursor: pointer;
+    color: #374151;
+    padding: 0;
+    transition: all 0.15s;
+    flex-shrink: 0;
+}
+
+.qtyBtn:hover {
+    border-color: #F59E0B;
+    color: #D97706;
+    background-color: #FFFBEB;
+}
+
+.qtyInput {
+    width: 2.25rem;
+    text-align: center;
+    padding: 0.1875rem 0.25rem;
+    border: 1px solid #D1D5DB;
+    border-radius: 0.25rem;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: #111827;
+    background: white;
+    -moz-appearance: textfield;
+}
+
+.qtyInput::-webkit-outer-spin-button,
+.qtyInput::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.qtyInput:focus {
+    outline: none;
+    border-color: #F59E0B;
+}
+
+.valueControl {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.currencyPrefix {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6B7280;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.valueInput {
+    width: 100%;
+    min-width: 0;
+    padding: 0.25rem 0.375rem;
+    border: 1px solid #D1D5DB;
+    border-radius: 0.25rem;
+    font-size: 0.8125rem;
+    color: #111827;
+    background: white;
+    -moz-appearance: textfield;
+}
+
+.valueInput::-webkit-outer-spin-button,
+.valueInput::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.valueInput:focus {
+    outline: none;
+    border-color: #F59E0B;
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.15);
+}
+
+/* ── Combined Table: Type Badges ─────────────────────────────────────────── */
+.typeBadgePadlock {
+    display: inline-block;
+    padding: 0.2rem 0.625rem;
+    background-color: #FEF3C7;
+    color: #92400E;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.typeBadgeStore {
+    display: inline-block;
+    padding: 0.2rem 0.625rem;
+    background-color: #DBEAFE;
+    color: #1E40AF;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* ── Combined Table: Items & Value cells ─────────────────────────────────── */
+.itemsList {
+    font-size: 0.8125rem;
+    color: #374151;
+    line-height: 1.4;
+    max-width: 240px;
+    display: block;
+    white-space: normal;
+    word-break: break-word;
+}
+
+.valueText {
+    font-weight: 600;
+    color: #065F46;
+}
+
+.emptyValue {
+    color: #9CA3AF;
+    font-size: 0.875rem;
 }

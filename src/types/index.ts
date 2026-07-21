@@ -160,3 +160,19 @@ export interface PadlockSale {
     postagem_verificada?: boolean;
     created_at: string;
 }
+
+export interface StoreSaleItem {
+    name: string;
+    quantity: number;
+    value: number;
+}
+
+export interface StoreSale {
+    id: string;
+    sale_date: string;
+    unit_id: string;
+    unit?: Unit;
+    payment_method: string;
+    items: StoreSaleItem[];
+    created_at: string;
+}

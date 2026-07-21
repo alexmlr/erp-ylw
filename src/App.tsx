@@ -138,11 +138,12 @@ function App() {
                 </AccessRoute>
               } />
 
-              <Route path="cadeados" element={
+              <Route path="vendas" element={
                 <AccessRoute allowedRoles={['admin', 'manager', 'administrative']}>
                   <PadlocksDashboard />
                 </AccessRoute>
               } />
+              <Route path="cadeados" element={<Navigate to="/vendas" replace />} />
 
               <Route path="settings" element={
                 <AccessRoute allowedRoles={['admin']}>
