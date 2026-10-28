@@ -42,6 +42,7 @@ export interface Supplier {
     id: string;
     name: string;
     cnpj?: string | null;
+    tax_regime?: 'Simples Puro' | 'Simples Híbrido' | 'Lucro Presumido' | 'Lucro Real' | null;
     address_street?: string | null;
     address_number?: string | null;
     address_complement?: string | null;

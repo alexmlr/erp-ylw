@@ -303,6 +303,22 @@
     font-size: 0.875rem;
 }
 
+.taxRegimeBadge {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 0.5rem;
+    margin-left: 0.75rem;
+    padding: 0.25rem 0.75rem;
+    background-color: #FFFBEB;
+    color: #92400E;
+    border: 1px solid #FDE68A;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.025em;
+    text-transform: uppercase;
+}
+
 .editButton {
     display: flex;
     align-items: center;

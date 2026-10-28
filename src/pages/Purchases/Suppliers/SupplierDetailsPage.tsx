@@ -60,6 +60,11 @@ export const SupplierDetailsPage: React.FC = () => {
                     <div>
                         <h1 className={styles.detailsTitle}>{supplier.name}</h1>
                         <span className={styles.cnpj}>CNPJ: {supplier.cnpj || '-'}</span>
+                        {supplier.tax_regime && (
+                            <div className={styles.taxRegimeBadge}>
+                                {supplier.tax_regime}
+                            </div>
+                        )}
                     </div>
                     <button className={styles.editButton} onClick={() => setIsEditModalOpen(true)}>
                         <Edit2 size={16} />

@@ -48,6 +48,13 @@ export const SupplierModal: React.FC<SupplierModalProps> = ({ isOpen, onClose, o
         'Não possui'
     ];
 
+    const TAX_REGIMES = [
+        'Simples Puro',
+        'Simples Híbrido',
+        'Lucro Presumido',
+        'Lucro Real'
+    ] as const;
+
     const formatCNPJ = (value: string) => {
         return value
             .replace(/\D/g, '')
@@ -158,6 +165,21 @@ export const SupplierModal: React.FC<SupplierModalProps> = ({ isOpen, onClose, o
                             placeholder="XX.XXX.XXX/XXXX-XX"
                             className={styles.input}
                         />
+                    </div>
+
+                    <div className={styles.formGroup}>
+                        <label>Regime Tributário</label>
+                        <select
+                            name="tax_regime"
+                            value={formData.tax_regime || ''}
+                            onChange={handleChange}
+                            className={styles.input}
+                        >
+                            <option value="">Selecione</option>
+                            {TAX_REGIMES.map(regime => (
+                                <option key={regime} value={regime}>{regime}</option>
+                            ))}
+                        </select>
                     </div>
 
                     <div className={styles.sectionTitle}>Endereço</div>
